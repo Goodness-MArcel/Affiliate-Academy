@@ -109,10 +109,10 @@ const Nav = () => {
                 Login
               </Link>
             </li>
-            <li className="nav-item ms-lg-3 mt-3 mt-lg-0 nav-item-animated" style={{ animationDelay: '0.7s' }}>
+            <li className="nav-item nav-item-animated mt-2 mt-lg-0" style={{ animationDelay: '0.7s' }}>
               <Link
                 to="/register"
-                className="btn btn-success text-white fw-bold px-4 cta-button"
+                className="btn btn-success text-white fw-bold px-4 cta-button d-block"
                 onClick={closeMenu}
               >
                 <i className="bi bi-rocket-takeoff me-2"></i>
