@@ -1,25 +1,40 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useUser } from '../../../context/userContext';
 import './sidebar.css';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, logout } = useUser(); // ✅ access from context
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  // ✅ Real user data (fallbacks if null)
+  const userData = {
+    name: profile?.full_name || user?.user_metadata?.full_name || 'Guest User',
+    email: profile?.email || user?.email || 'guest@example.com',
+    avatar:
+      profile?.avatar_url ||
+      'https://ui-avatars.com/api/?name=' +
+        encodeURIComponent(profile?.full_name || user?.email || 'User'),
+    role: profile?.payment_method || 'Affiliate',
   };
 
-  // TODO: Replace with actual user data from database/context
-  const user = {
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-    role: 'Affiliate'
+  // ✅ Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login'); // redirect after logout
+    } catch (err) {
+      console.error('Logout failed:', err.message);
+    }
   };
 
+  // ✅ Updated menu items (Logout uses onClick)
   const menuItems = [
-    { title: 'Home', icon: 'bi-house-door', path: '/dashboard'},
+    { title: 'Home', icon: 'bi-house-door', path: '/dashboard' },
     { title: 'Program Access', icon: 'bi-unlock', path: '/dashboard/program-access' },
     { title: 'Profile', icon: 'bi-person-circle', path: '/dashboard/profile' },
     { title: 'Achievement', icon: 'bi-trophy', path: '/dashboard/achievement' },
@@ -27,7 +42,6 @@ const Sidebar = () => {
     { title: 'Real Estate', icon: 'bi-house', path: '/dashboard/real-estate' },
     { title: 'Payment', icon: 'bi-credit-card', path: '/dashboard/payment' },
     { title: 'Invite', icon: 'bi-person-plus', path: '/dashboard/invite' },
-    { title: 'Logout', icon: 'bi-box-arrow-right', path: '/logout' },
   ];
 
   return (
@@ -50,9 +64,9 @@ const Sidebar = () => {
             <span className="notification-badge">3</span>
           </button>
 
-          {/* Profile Picture Only */}
-          <div className="profile-picture">
-            <img src={user.avatar} alt={user.name} className="profile-avatar" />
+          {/* Profile Picture */}
+          <div className="profile-picture" title={userData.name}>
+            <img src={userData.avatar} alt={userData.name} className="profile-avatar" />
           </div>
         </div>
       </nav>
@@ -60,13 +74,13 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-content">
-          {/* User Profile Section in Sidebar */}
+          {/* User Profile Section */}
           <div className="sidebar-user">
-            <img src={user.avatar} alt={user.name} className="sidebar-avatar" />
+            <img src={userData.avatar} alt={userData.name} className="sidebar-avatar" />
             {isOpen && (
               <div className="sidebar-user-info">
-                <h6>{user.name}</h6>
-                <p>{user.role}</p>
+                <h6>{userData.name}</h6>
+                <p>{userData.role}</p>
               </div>
             )}
           </div>
@@ -82,11 +96,29 @@ const Sidebar = () => {
               >
                 <i className={`bi ${item.icon}`}></i>
                 {isOpen && <span className="menu-text">{item.title}</span>}
-                {isOpen && item.badge && (
-                  <span className="menu-badge">{item.badge}</span>
-                )}
               </Link>
             ))}
+
+            {/* ✅ Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="menu-item"
+              title="Logout"
+              style={{
+                border: 'none ',
+                background: 'none',
+                color: '#dc3545',
+                display: 'flex',
+                alignItems: 'center',
+                // gap: '10px',
+                textAlign: 'start',
+                cursor: 'pointer',
+                marginTop: '1rem',
+              }}
+            >
+              <i className="bi bi-box-arrow-right"></i>
+              {isOpen && <span className="menu-text">Logout</span>}
+            </button>
           </nav>
         </div>
 
@@ -106,9 +138,7 @@ const Sidebar = () => {
       </aside>
 
       {/* Overlay for mobile */}
-      {isOpen && (
-        <div className="sidebar-overlay" onClick={toggleSidebar}></div>
-      )}
+      {isOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
     </>
   );
 };
