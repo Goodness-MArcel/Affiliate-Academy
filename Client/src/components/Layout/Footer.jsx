@@ -98,7 +98,7 @@ const Footer = () => {
             <h5 className="mb-3 text-success footer-heading">Support</h5>
             <ul className="list-unstyled footer-links">
               <li className="mb-2">
-                <a href="/support" className="footer-link">
+                <a href="/contact" className="footer-link">
                   <i className="bi bi-chevron-right me-1"></i>
                   Help Center
                 </a>
@@ -116,9 +116,9 @@ const Footer = () => {
                 </a>
               </li>
               <li className="mb-2">
-                <a href="/register" className="footer-link">
+                <a href="/Login" className="footer-link">
                   <i className="bi bi-chevron-right me-1"></i>
-                  Become a Vendor
+                  Login
                 </a>
               </li>
             </ul>
@@ -142,7 +142,7 @@ const Footer = () => {
               </li>
               <li className="contact-item">
                 <i className="bi bi-geo-alt-fill text-success me-2"></i>
-                <span className="text-muted">Nigeria</span>
+                <span className="text-grey">Nigeria</span>
               </li>
             </ul>
 
@@ -168,13 +168,13 @@ const Footer = () => {
         <hr className="border-secondary my-4 animate-fade-in" />
         <div className="row animate-fade-in">
           <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">
-            <p className="text-muted small mb-0">
+            <p className="text--success small mb-0">
               &copy; {currentYear} All Rights Reserved by{' '}
               <span className="text-success fw-bold">Affiliate Academy</span>
             </p>
           </div>
           <div className="col-md-6 text-center text-md-end">
-            <p className="text-muted small mb-0">
+            <p className="text--success small mb-0">
               Designed by{' '}
               <a
                 href="#"
