@@ -8,9 +8,10 @@ import RealEstate from './components/pages/RealEstate.jsx';
 import Faqs from './components/pages/Faqs.jsx';
 import Register from './components/pages/Register.jsx';
 import Login from './components/pages/Login.jsx';
+import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
-import NotFound from './components/pages/NotFound.jsx';
+import Program from './components/Users/ProgramAccess.jsx';
 
 
 const Layout = () => {
@@ -36,6 +37,7 @@ const Layout = () => {
           <Route path="/privacy" element={<Terms />} />
           {/* Dashboard and other protected routes can be added here */}
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/program-access" element={<Program />} />
 
           
           {/* 404 Not Found - Catch all unmatched routes */}

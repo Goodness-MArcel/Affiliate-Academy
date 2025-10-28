@@ -1,7 +1,10 @@
 import Sidebar from './UserLayout/sidebar';
 import "./Css/Dashboard.css";
 import React, { useState, useEffect } from "react";
+import Smallfooter from "./UserLayout/smallfooter";
 import affiliateVideo from "../../assets/affilatevidoe.mp4";
+import ProgramAccess from './ProgramAccess.jsx';
+
 
 const Dashboard = () => {
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
@@ -12,8 +15,7 @@ const Dashboard = () => {
       totalReferral: { value: 0, change: 0, trend: 'up' },
       payout: { value: 0, change: 0, trend: 'up' },
       paidAmount: { value: 0, change: 0, trend: 'up' },
-    },
-    recentSales: []
+    }
   });
 
   const currencies = [
@@ -50,7 +52,7 @@ const Dashboard = () => {
             payout: { value: 0, change: 0, trend: 'up' },
             paidAmount: { value: 0, change: 0, trend: 'up' },
             requestedAmount: { value: 0, change: 0, trend: 'neutral' }
-          },
+          }
         };
 
         // Simulate network delay
@@ -82,7 +84,7 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="dashboard-content">
           {/* Dashboard Header with Currency Selector */}
-          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h1 className="mb-0">Dashboard</h1>
             </div>
@@ -93,14 +95,14 @@ const Dashboard = () => {
                 </label> */}
                 <select 
                   id="currencySelect"
-                  className="form-select currency-select" 
+                  className="form-select form-select-sm currency-select" 
                   value={selectedCurrency}
                   onChange={(e) => setSelectedCurrency(e.target.value)}
-                  style={{ width: 'auto', minWidth: '10px' }}
+                  style={{ width: 'auto', minWidth: '80px', fontSize: '0.85rem' }}
                 >
                   {currencies.map((currency) => (
                     <option key={currency.code} value={currency.code}>
-                      {currency.symbol} {currency.code} - {currency.name}
+                      {currency.symbol} {currency.code} 
                     </option>
                   ))}
                 </select>
@@ -117,17 +119,20 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-            <div className="card mb-3">
+            {/* Video Banner - Mobile Only */}
+            <div className="card mb-3 d-lg-none">
               <video 
                 src={affiliateVideo}
                 className="card-img-top"
-                style={{ width: '100%', height: '150px', objectFit: 'cover' }}
+                style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '12px', display: 'block' }}
                 autoPlay
                 loop
                 muted
                 playsInline
               />
             </div>
+
+           
             
               {/* Stats Cards Row */}
               <div className="container-fluid px-0">
@@ -218,13 +223,19 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-
+              </div>
                 
+              {/* Program Access Section - Full Width */}
+              <div className="mt-4">
+                <ProgramAccess formatCurrency={formatCurrency} embedded={true} />
               </div>
             </>
           )}
         </div>
       </main>
+        <div className="footer-space">
+            <Smallfooter />
+        </div>
     </div>
   );
 };
