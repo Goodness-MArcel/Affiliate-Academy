@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './Faqs.css'
+import { Link } from 'react-router-dom';
 
 const Faqs = () => {
   const [activeCategory, setActiveCategory] = useState('general')
@@ -156,7 +157,7 @@ const Faqs = () => {
               Find answers to common questions about Affiliate Academy
             </p>
             <p className="banner-description">
-              Can't find what you're looking for? <a href="#contact" className="text-success fw-bold">Contact our support team</a>
+              Can't find what you're looking for? <Link to="/contact" className="text-success fw-bold">Contact our support team</Link>
             </p>
           </div>
         </div>

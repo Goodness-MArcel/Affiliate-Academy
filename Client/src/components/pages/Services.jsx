@@ -1,5 +1,6 @@
 import React from 'react'
 import './Services.css'
+import { Link } from 'react-router-dom';
 
 const Services = () => {
   return (
@@ -21,10 +22,10 @@ const Services = () => {
                   Explore our range of services designed to help you succeed in the digital marketplace
                 </p>
                 <div className="banner-button">
-                  <a href="/register" className="btn btn-success btn-lg">
+                  <Link to="/register" className="btn btn-success btn-lg">
                     Get Started
                     <i className="bi bi-arrow-right ms-2"></i>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import './Home.css';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const scrollCarousel = (direction) => {
@@ -29,9 +30,9 @@ const Home = () => {
                   are fueled by knowledge, and success is within reach.
                 </p>
                 <div className="hero-buttons animate-fade-in-delay-3">
-                  <a href="/register" className="btn btn-success btn-lg me-0 me-sm-3 mb-2 mb-sm-3">
+                  <Link to="/register" className="btn btn-success btn-lg me-0 me-sm-3 mb-2 mb-sm-3">
                     Get Started
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -85,10 +86,10 @@ const Home = () => {
                           </li>
                         </ul>
                         <div>
-                          <a href="/register" className="btn btn-success btn-lg w-100 w-sm-auto">
+                          <Link to="/register" className="btn btn-success btn-lg w-100 w-sm-auto">
                             Start Your Journey
                             <i className="bi bi-arrow-right ms-2"></i>
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -290,10 +291,10 @@ const Home = () => {
                         Dedicated support team
                       </li>
                     </ul>
-                    <a href="/affiliate" className="btn btn-success btn-lg w-100">
+                    <Link to="/affiliate" className="btn btn-success btn-lg w-100">
                       <i className="bi bi-person-plus-fill me-2"></i>
                       Become an Affiliate
-                    </a>
+                    </Link>
                   </div>
                   <div className="card-decoration"></div>
                 </div>
@@ -482,10 +483,10 @@ const Home = () => {
               <div className="support-cta p-4 rounded-3 bg-light">
                 <h4 className="fw-bold mb-2">Still have questions?</h4>
                 <p className="text-muted mb-3">Our support team is here to help you. Reach out to us anytime.</p>
-                <a href="#contact" className="btn btn-success">
+                <Link to="/contact" className="btn btn-success">
                   <i className="bi bi-envelope-fill me-2"></i>
                   Contact Support
-                </a>
+                </Link>
               </div>
             </div>
           </div>

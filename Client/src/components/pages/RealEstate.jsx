@@ -1,5 +1,6 @@
 import React from 'react'
 import './RealEstate.css'
+import { Link } from 'react-router-dom';
 
 const RealEstate = () => {
   return (
@@ -21,10 +22,10 @@ const RealEstate = () => {
                   Explore premium real estate properties and investment opportunities through Affiliate Academy
                 </p>
                 <div className="banner-button">
-                  <a href="/register" className="btn btn-success btn-lg">
+                  <Link to="/register" className="btn btn-success btn-lg">
                     Get Notified
                     <i className="bi bi-arrow-right ms-2"></i>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -83,14 +84,14 @@ const RealEstate = () => {
                 </div>
 
                 <div className="coming-soon-buttons">
-                  <a href="/" className="btn btn-success btn-lg me-2 mb-2">
+                  <Link to="/" className="btn btn-success btn-lg me-2 mb-2">
                     <i className="bi bi-house-fill me-2"></i>
                     Back to Home
-                  </a>
-                  <a href="#contact" className="btn btn-outline-success btn-lg mb-2">
+                  </Link>
+                  <Link to="/contact" className="btn btn-outline-success btn-lg mb-2">
                     <i className="bi bi-envelope-fill me-2"></i>
                     Contact Us
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

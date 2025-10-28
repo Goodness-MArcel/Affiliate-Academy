@@ -1,6 +1,7 @@
 import React from 'react'
 import './Affiliate.css'
 import affiliateImage from '../../assets/images/Affiliate.jpg'
+import { Link } from 'react-router-dom';
 
 const Affiliate = () => {
   return (
@@ -22,10 +23,10 @@ const Affiliate = () => {
                   Make True Wealth By Signing Up As An Affiliate On Affiliate Academy Through Our Generous Commission
                 </p>
                 <div className="banner-button">
-                  <a href="/register" className="btn btn-success btn-lg">
+                  <Link to="/register" className="btn btn-success btn-lg">
                     Register and Earn
                     <i className="bi bi-arrow-right ms-2"></i>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
