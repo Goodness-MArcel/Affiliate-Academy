@@ -12,6 +12,7 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
 import Program from './components/Users/ProgramAccess.jsx';
+import Profile from './components/Users/Profile.jsx';
 
 
 const Layout = () => {
@@ -38,8 +39,8 @@ const Layout = () => {
           {/* Dashboard and other protected routes can be added here */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/program-access" element={<Program />} />
+          <Route path="/dashboard/profile" element={<Profile />} />
 
-          
           {/* 404 Not Found - Catch all unmatched routes */}
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
