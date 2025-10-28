@@ -8,10 +8,12 @@ import RealEstate from './components/pages/RealEstate.jsx';
 import Faqs from './components/pages/Faqs.jsx';
 import Register from './components/pages/Register.jsx';
 import Login from './components/pages/Login.jsx';
+import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
-import NotFound from './components/pages/NotFound.jsx';
+import Program from './components/Users/ProgramAccess.jsx';
+import Profile from './components/Users/Profile.jsx';
 
 const Layout = () => {
   const location = useLocation();
