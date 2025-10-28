@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Affiliate Academy Platform",
   "scripts": {
-    "build": "cd Client && npm install && npm run build && cd .. && xcopy /E /I /Y Client\\dist build",
+    "build": "cd Client && npm install && npm run build && cd .. && cp -r Client/dist build",
+    "build:windows": "cd Client && npm install && npm run build && cd .. && xcopy /E /I /Y Client\\dist build",
     "start": "cd Server && npm install && node server.js",
     "dev:client": "cd Client && npm run dev",
     "dev:server": "cd Server && npm run dev"
