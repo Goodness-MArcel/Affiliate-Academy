@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
@@ -9,10 +9,16 @@ import Faqs from './components/pages/Faqs.jsx';
 import Register from './components/pages/Register.jsx';
 import Login from './components/pages/Login.jsx';
 import Terms from './components/pages/Terms.jsx';
+import Dashboard from './components/Users/Dashboard.jsx';
+import NotFound from './components/pages/NotFound.jsx';
+
 
 const Layout = () => {
   const location = useLocation();
-  const hideNavAndFooter = location.pathname === '/login' || location.pathname === '/register';
+  const hideNavAndFooter = location.pathname === '/login' || 
+                          location.pathname === '/register' || 
+                          location.pathname === '/404' ||
+                          location.pathname.startsWith('/dashboard');
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -28,6 +34,13 @@ const Layout = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
+          {/* Dashboard and other protected routes can be added here */}
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          
+          {/* 404 Not Found - Catch all unmatched routes */}
+          <Route path="/404" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       </main>
       {!hideNavAndFooter && <Footer />}
