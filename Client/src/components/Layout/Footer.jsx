@@ -79,9 +79,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li className="mb-2">
-                <Link to="/vendor" className="footer-link">
+                <Link to="/Services" className="footer-link">
                   <i className="bi bi-chevron-right me-1"></i>
-                  Vendor
+                  Services
                 </Link>
               </li>
               <li className="mb-2">

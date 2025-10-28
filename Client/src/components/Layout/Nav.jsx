@@ -79,11 +79,11 @@ const Nav = () => {
             </li>
             <li className="nav-item nav-item-animated" style={{ animationDelay: '0.3s' }}>
               <Link 
-                className={`nav-link ${location.pathname === '/vendor' ? 'active' : ''}`} 
-                to="/vendor" 
+                className={`nav-link ${location.pathname === '/services' ? 'active' : ''}`} 
+                to="/services" 
                 onClick={closeMenu}
               >
-                Vendor
+                Services
               </Link>
             </li>
             <li className="nav-item nav-item-animated" style={{ animationDelay: '0.4s' }}>

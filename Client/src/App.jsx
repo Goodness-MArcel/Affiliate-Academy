@@ -3,7 +3,7 @@ import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
 import Affiliate from './components/pages/Affiliate.jsx';
-import Vendor from './components/pages/Vendor.jsx';
+import Services from './components/pages/Services.jsx';
 import RealEstate from './components/pages/RealEstate.jsx';
 import Faqs from './components/pages/Faqs.jsx';
 import Register from './components/pages/Register.jsx';
@@ -20,9 +20,9 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/affiliate" element={<Affiliate />} />
-            <Route path="/vendor" element={<Vendor />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/real-estate" element={<RealEstate />} />
-            <Route path="/faq" element={<Faqs />} />
+            <Route path="/faqs" element={<Faqs />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
           </Routes>

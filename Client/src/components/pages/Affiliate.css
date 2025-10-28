@@ -1,0 +1,293 @@
+/* Affiliate Page Styles */
+
+/* Banner Section */
+.affiliate-banner {
+  position: relative;
+  height: 600px;
+  background: linear-gradient(135deg, #198754 0%, #0f6838 100%),
+              url('https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=600&fit=crop') center/cover;
+  background-attachment: fixed;
+  background-blend-mode: overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.affiliate-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><pattern id="pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M50 0L100 50L50 100L0 50Z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="1200" height="600" fill="url(%23pattern)"/></svg>');
+  opacity: 0.3;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.affiliate-banner .container {
+  position: relative;
+  z-index: 2;
+}
+
+.banner-content {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.banner-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  line-height: 1.2;
+}
+
+.banner-title .text-success {
+  color: #20c997;
+}
+
+.banner-subtitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #f8f9fa;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.banner-subtitle .text-success {
+  color: #ffc107;
+  font-size: 2.3rem;
+}
+
+.banner-description {
+  font-size: 1.2rem;
+  color: #e9ecef;
+  margin-bottom: 3rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.banner-button {
+  display: inline-block;
+}
+
+.banner-button .btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  background: #198754;
+  border: none;
+}
+
+.banner-button .btn:hover {
+  background: #20c997;
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.banner-button .btn i {
+  transition: transform 0.3s ease;
+}
+
+.banner-button .btn:hover i {
+  transform: translateX(5px);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-slide-up-delay-1 {
+  animation: slideUp 0.6s ease-out 0.1s both;
+}
+
+.animate-slide-up-delay-2 {
+  animation: slideUp 0.6s ease-out 0.2s both;
+}
+
+.animate-slide-up-delay-3 {
+  animation: slideUp 0.6s ease-out 0.3s both;
+}
+
+/* Cards Section */
+.affiliate-cards-section {
+  padding: 5rem 0;
+  background: #f8f9fa;
+}
+
+.feature-card {
+  margin-bottom: 2rem;
+}
+
+.feature-card .card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.feature-card .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-img-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-img-overlay-dark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.info-card .card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.info-card .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .affiliate-banner {
+    height: 500px;
+  }
+
+  .banner-title {
+    font-size: 2.5rem;
+  }
+
+  .banner-subtitle {
+    font-size: 1.5rem;
+  }
+
+  .banner-subtitle .text-success {
+    font-size: 1.7rem;
+  }
+
+  .banner-description {
+    font-size: 1rem;
+  }
+
+  .banner-button .btn {
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .affiliate-banner {
+    height: 400px;
+  }
+
+  .banner-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .banner-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .banner-subtitle .text-success {
+    font-size: 1.4rem;
+  }
+
+  .banner-description {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  .banner-button .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .affiliate-banner {
+    height: 350px;
+  }
+
+  .banner-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .banner-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .banner-subtitle .text-success {
+    font-size: 1.1rem;
+  }
+
+  .banner-description {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .banner-button .btn {
+    padding: 0.65rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
