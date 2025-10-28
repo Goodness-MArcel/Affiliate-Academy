@@ -287,22 +287,28 @@
 
 @media (max-width: 576px) {
   .social-links {
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: 1rem;
   }
   
   .footer-heading::after {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    transform: translateX(0);
   }
   
   .footer > .container > .row > div {
-    text-align: center;
+    text-align: left;
   }
   
   .footer-links,
   .footer-contact {
     padding-left: 0;
+  }
+  
+  /* Align bottom bar text to left on mobile */
+  .col-md-6.text-center.text-md-start,
+  .col-md-6.text-center.text-md-end {
+    text-align: left !important;
   }
 }
 
