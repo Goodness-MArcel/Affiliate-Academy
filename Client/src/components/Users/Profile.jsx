@@ -118,7 +118,7 @@ const Profile = () => {
       if (uploadError) {
         // If avatars bucket doesn't exist, try to create it or use a different approach
         if (uploadError.message.includes('not found')) {
-          throw new Error('Avatar storage not configured. Please contact support.');
+          throw new Error('Avatar storage not configured. ');
         }
         throw uploadError;
       }

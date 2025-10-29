@@ -14,6 +14,11 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
 import Profile from './components/Users/Profile.jsx';
 import ProgramAccess from './components/Users/ProgramAccess.jsx';
+import Estate from './components/Users/Estates.jsx';
+import Product from './components/Users/Products.jsx';
+import Payment from './components/Users/Payment.jsx';
+import Invite from './components/Users/Invite.jsx';
+import Achievement from './components/Users/Achivement.jsx';
 
 const Layout = () => {
   const location = useLocation();
@@ -64,6 +69,47 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/estate"
+            element={
+              <ProtectedRoute>
+                <Estate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/products"
+            element={
+              <ProtectedRoute>
+                <Product />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/payment"
+            element={
+              <ProtectedRoute>
+                <Payment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/invite"
+            element={
+              <ProtectedRoute>
+                <Invite />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/achievement"
+            element={
+              <ProtectedRoute>
+                <Achievement />
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />

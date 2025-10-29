@@ -3,7 +3,7 @@ import Sidebar from './UserLayout/sidebar';
 import Smallfooter from "./UserLayout/smallfooter";
 import "./Css/Dashboard.css";
 
-const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false }) => {
+const ProgramAccess = ({ formatCurrency:  embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [purchasedProducts, setPurchasedProducts] = useState([]);
   const [selectedCurrency, setSelectedCurrency] = useState('USD');

@@ -38,8 +38,8 @@ const Sidebar = () => {
     { title: 'Program Access', icon: 'bi-unlock', path: '/dashboard/program-access' },
     { title: 'Profile', icon: 'bi-person-circle', path: '/dashboard/profile' },
     { title: 'Achievement', icon: 'bi-trophy', path: '/dashboard/achievement' },
-    { title: 'Product', icon: 'bi-box-seam', path: '/dashboard/product' },
-    { title: 'Real Estate', icon: 'bi-house', path: '/dashboard/real-estate' },
+    { title: 'Product', icon: 'bi-box-seam', path: '/dashboard/products' },
+    { title: 'Real Estate', icon: 'bi-house', path: '/dashboard/Estate' },
     { title: 'Payment', icon: 'bi-credit-card', path: '/dashboard/payment' },
     { title: 'Invite', icon: 'bi-person-plus', path: '/dashboard/invite' },
   ];
