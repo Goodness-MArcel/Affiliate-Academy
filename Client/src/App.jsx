@@ -9,22 +9,24 @@ import Faqs from './components/pages/Faqs.jsx';
 import Register from './components/pages/Register.jsx';
 import Login from './components/pages/Login.jsx';
 import Terms from './components/pages/Terms.jsx';
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
 import NotFound from './components/pages/NotFound.jsx';
 
-
 const Layout = () => {
   const location = useLocation();
-  const hideNavAndFooter = location.pathname === '/login' || 
-                          location.pathname === '/register' || 
-                          location.pathname === '/404' ||
-                          location.pathname.startsWith('/dashboard');
+  const hideNavAndFooter =
+    location.pathname === '/login' ||
+    location.pathname === '/register' ||
+    location.pathname === '/404' ||
+    location.pathname.startsWith('/dashboard');
 
   return (
     <div className="d-flex flex-column min-vh-100">
       {!hideNavAndFooter && <Nav />}
       <main className="flex-grow-1">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/affiliate" element={<Affiliate />} />
           <Route path="/services" element={<Services />} />
@@ -34,11 +36,18 @@ const Layout = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
-          {/* Dashboard and other protected routes can be added here */}
-          <Route path="/dashboard" element={<Dashboard />} />
 
-          
-          {/* 404 Not Found - Catch all unmatched routes */}
+          {/* ✅ Protected Route */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
@@ -48,12 +57,10 @@ const Layout = () => {
   );
 };
 
-const App = () => {
-  return (
-    <Router>
-      <Layout />
-    </Router>
-  );
-};
+const App = () => (
+  <Router>
+    <Layout />
+  </Router>
+);
 
 export default App;

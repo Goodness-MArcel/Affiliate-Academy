@@ -1,40 +1,74 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import './Login.css'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/userContext';
+import './Login.css';
 
 const Login = () => {
+  const { login } = useUser();               // <-- from UserContext
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false
-  })
+    rememberMe: false,
+  });
 
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
+  // -----------------------------------------------------------------
+  // Input change handler (same as before)
+  // -----------------------------------------------------------------
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-  }
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Login data:', formData)
-    // Add your login logic here
-  }
+  // -----------------------------------------------------------------
+  // Submit → call Supabase login → redirect
+  // -----------------------------------------------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      await login(formData.email.trim(), formData.password);
+
+      // login() updates the context automatically → profile will be fetched
+      // (the useEffect in UserContext runs on auth change)
+
+      // OPTIONAL: you can store "remember me" in localStorage
+      if (formData.rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
+
+      // SUCCESS → go to protected page
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      console.error('Login error:', err);
+      setErrorMsg(err.message || 'Invalid email or password.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        {/* Back to Home Arrow */}
+        {/* Back arrow */}
         <Link to="/" className="back-to-home">
           <i className="bi bi-arrow-left"></i>
           <span>Back to Home</span>
         </Link>
 
-        {/* Login Card */}
+        {/* Card */}
         <div className="login-card">
           <div className="login-header">
             <div className="logo-section">
@@ -44,8 +78,11 @@ const Login = () => {
             <p>Sign in to your Affiliate Academy account</p>
           </div>
 
+          {/* Error alert */}
+          {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
+
           <form onSubmit={handleSubmit} className="login-form">
-            {/* Email Field */}
+            {/* Email */}
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <div className="input-wrapper">
@@ -58,11 +95,12 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
+                  autoComplete="username"
                 />
               </div>
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <div className="input-wrapper">
@@ -75,18 +113,21 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Enter your password"
                   required
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   className="toggle-password"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                  <i
+                    className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}
+                  ></i>
                 </button>
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            {/* Remember + Forgot */}
             <div className="form-options">
               <div className="remember-me">
                 <input
@@ -103,10 +144,20 @@ const Login = () => {
               </Link>
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="login-button">
-              <span>Sign In</span>
-              <i className="bi bi-arrow-right"></i>
+            {/* Submit */}
+            <button
+              type="submit"
+              className="login-button"
+              disabled={loading}
+            >
+              {loading ? (
+                'Signing in...'
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <i className="bi bi-arrow-right"></i>
+                </>
+              )}
             </button>
           </form>
 
@@ -115,14 +166,16 @@ const Login = () => {
             <span>or</span>
           </div>
 
-          {/* Register Link */}
+          {/* Register link */}
           <div className="register-link">
-            <p>Don't have an account? <Link to="/register">Create Account</Link></p>
+            <p>
+              Don't have an account? <Link to="/register">Create Account</Link>
+            </p>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

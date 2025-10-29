@@ -2,8 +2,10 @@ import Sidebar from './UserLayout/sidebar';
 import "./Css/Dashboard.css";
 import React, { useState, useEffect } from "react";
 import affiliateVideo from "../../assets/affilatevidoe.mp4";
+import { useUser } from '../../context/userContext';
 
 const Dashboard = () => {
+  const {logout} = useUser();
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({

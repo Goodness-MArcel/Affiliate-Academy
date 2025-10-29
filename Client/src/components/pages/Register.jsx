@@ -1,23 +1,15 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import './Register.css'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/userContext';
+import { countries } from './userCountries.js';
+
+import './Register.css';
 
 const Register = () => {
-  // Country data with currencies
-  const countries = [
-    { code: 'US', name: 'United States', currency: 'USD ($)' },
-    { code: 'GB', name: 'United Kingdom', currency: 'GBP (£)' },
-    { code: 'NG', name: 'Nigeria', currency: 'NGN (₦)' },
-    { code: 'GH', name: 'Ghana', currency: 'GHS (₵)' },
-    { code: 'KE', name: 'Kenya', currency: 'KES (KSh)' },
-    { code: 'ZA', name: 'South Africa', currency: 'ZAR (R)' },
-    { code: 'CA', name: 'Canada', currency: 'CAD ($)' },
-    { code: 'AU', name: 'Australia', currency: 'AUD ($)' },
-    { code: 'IN', name: 'India', currency: 'INR (₹)' },
-    { code: 'SG', name: 'Singapore', currency: 'SGD ($)' },
-    { code: 'AE', name: 'United Arab Emirates', currency: 'AED (د.إ)' },
-    { code: 'EU', name: 'European Union', currency: 'EUR (€)' }
-  ]
+
+  const { register } = useUser();
+  const navigate = useNavigate();
+
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -27,63 +19,104 @@ const Register = () => {
     confirmPassword: '',
     country: '',
     paymentMethod: '',
-    agreedToTerms: false
-  })
+    agreedToTerms: false,
+  });
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState('')
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target;
+    setFormData(p => ({
+      ...p,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
 
-    // Update currency when country changes
     if (name === 'country') {
-      const country = countries.find(c => c.code === value)
-      setSelectedCurrency(country ? country.currency : '')
+      try {
+        const c = countries.find(x => x.code === value);
+        setSelectedCurrency(c ? c.currency : '');
+      } catch {
+        setSelectedCurrency('');
+        console.error('Error: countries array not found or invalid.');
+      }
     }
-  }
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!')
-      return
+  // -------------------------------------------------
+  // THE NEW handleSubmit – uses Supabase via context
+  // -------------------------------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      // Validate required fields
+      if (!formData.fullName.trim() || !formData.email.trim() || !formData.phoneNumber.trim()) {
+        throw new Error('Please fill out all required fields.');
+      }
+
+      if (!formData.country) {
+        throw new Error('Please select your country.');
+      }
+
+      if (!formData.paymentMethod) {
+        throw new Error('Please select a payment method.');
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error('Passwords do not match.');
+      }
+
+      if (!formData.agreedToTerms) {
+        throw new Error('You must agree to the Terms and Conditions.');
+      }
+
+      // If everything is valid, proceed with registration
+      await register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        country: formData.country,
+        paymentMethod: formData.paymentMethod,
+        agreedToTerms: formData.agreedToTerms,
+      });
+
+      navigate('/login'); // success redirect
+    } catch (err) {
+      // Prevent submission if any validation or runtime error
+      console.error('Registration error:', err);
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (!formData.agreedToTerms) {
-      alert('Please agree to the Terms and Conditions')
-      return
-    }
 
-    console.log('Registration data:', formData)
-    // Add your registration logic here
-  }
-
+  // -------------------------------------------------
+  // UI (unchanged except for error / loading display)
+  // -------------------------------------------------
   return (
     <div className="register-page">
       <div className="register-container">
-        {/* Back to Home Arrow */}
         <Link to="/" className="back-to-home">
           <i className="bi bi-arrow-left"></i>
           <span>Back to Home</span>
         </Link>
 
-        {/* Register Card */}
         <div className="register-card">
           <div className="register-header">
-            <div className="logo-section">
-              <i className="bi bi-person-plus"></i>
-            </div>
+            <div className="logo-section"><i className="bi bi-person-plus"></i></div>
             <h1>Create Account</h1>
             <p>Join Affiliate Academy and start your journey</p>
           </div>
+
+          {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
           <form onSubmit={handleSubmit} className="register-form">
             {/* Full Name Field */}
@@ -197,7 +230,7 @@ const Register = () => {
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  required
+                // required
                 >
                   <option value="">Choose your country</option>
                   {countries.map(country => (
@@ -251,26 +284,19 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="register-button">
-              <span>Create Account</span>
-              <i className="bi bi-arrow-right"></i>
+            <button type="submit" className="register-button" disabled={loading}>
+              {loading ? 'Creating…' : <>Create Account <i className="bi bi-arrow-right"></i></>}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="divider">
-            <span>or</span>
-          </div>
-
-          {/* Login Link */}
+          <div className="divider"><span>or</span></div>
           <div className="login-link">
             <p>Already have an account? <Link to="/login">Sign In</Link></p>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
