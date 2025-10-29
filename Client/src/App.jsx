@@ -12,7 +12,6 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
-import Program from './components/Users/ProgramAccess.jsx';
 import Profile from './components/Users/Profile.jsx';
 import ProgramAccess from './components/Users/ProgramAccess.jsx';
 
@@ -40,13 +39,28 @@ const Layout = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
 
-          {/* ✅ Protected Route */}
+          {/* ✅ Protected Routes */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
-                <ProgramAccess  />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/program-access"
+            element={
+              <ProtectedRoute>
+                <ProgramAccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />

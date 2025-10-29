@@ -257,6 +257,200 @@
   background-color: #cff4fc !important;
 }
 
+/* Profile Page Styles */
+.profile-avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #198754;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-avatar-upload:hover {
+  background: #157347;
+  transform: scale(1.1);
+}
+
+/* Profile Landscape Layout - Desktop Only */
+@media (min-width: 992px) {
+  .profile-landscape-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+
+  .profile-avatar-section {
+    flex: 0 0 300px;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .profile-form-section {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Enhanced border for desktop separator */
+  .border-lg-end {
+    border-right: 2px solid #e9ecef !important;
+  }
+
+  /* Quick info styling */
+  .profile-quick-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #dee2e6;
+  }
+
+  .profile-quick-info p {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #198754;
+  }
+
+  /* Avatar section enhancements */
+  .profile-avatar-section .card-body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  }
+}
+
+.profile-info-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+}
+
+.profile-field-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-field-value {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.profile-section-title {
+  font-weight: 700;
+  color: #212529;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #198754;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.referral-link-container {
+  background: linear-gradient(135deg, #d1f4e0 0%, #a7f3d0 100%);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #10b981;
+}
+
+.copy-success {
+  animation: copyPulse 0.6s ease-in-out;
+}
+
+@keyframes copyPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Form Enhancements */
+.form-control:focus,
+.form-select:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.btn-success {
+  background: #198754;
+  border-color: #198754;
+}
+
+.btn-success:hover {
+  background: #157347;
+  border-color: #146c43;
+  transform: translateY(-1px);
+}
+
+.btn-outline-success {
+  color: #198754;
+  border-color: #198754;
+}
+
+.btn-outline-success:hover {
+  background: #198754;
+  border-color: #198754;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Alert Enhancements */
+.alert {
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d1f4e0 0%, #a7f3d0 100%);
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+  color: #7f1d1d;
+  border-left: 4px solid #ef4444;
+}
+
+/* Badge Enhancements */
+.badge {
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+.badge.bg-success {
+  background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+}
+
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #8d9196 100%) !important;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .dashboard-main {
@@ -267,6 +461,42 @@
   .sidebar.closed ~ .dashboard-main,
   .sidebar.open ~ .dashboard-main {
     margin-left: 0;
+  }
+
+  .profile-section-title {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Mobile/Tablet Profile Layout */
+  .profile-mobile-stack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Remove desktop borders on mobile */
+  .border-lg-end {
+    border-right: none !important;
+  }
+
+  /* Stack avatar section on top for mobile */
+  .profile-avatar-section {
+    order: 1;
+    margin-bottom: 2rem;
+  }
+
+  .profile-form-section {
+    order: 2;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 991px) {
+  .profile-tablet-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
   }
 }
 
@@ -432,4 +662,135 @@
   .mb-3 {
     margin-bottom: 0.75rem !important;
   }
+
+  /* Profile Page Mobile Styles */
+  .card-header {
+    padding: 1rem !important;
+  }
+
+  .card-header h4 {
+    font-size: 1.25rem !important;
+  }
+
+  .profile-avatar-container img {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .profile-avatar-upload {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .profile-section-title {
+    font-size: 1rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .profile-field-label {
+    font-size: 0.9rem;
+  }
+
+  .btn-group .btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .input-group .btn {
+    padding: 0.5rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .input-group .btn span {
+    display: none !important;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+  }
+
+  .alert {
+    padding: 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .referral-link-container {
+    padding: 0.75rem !important;
+  }
+
+  /* Stack form buttons vertically on mobile */
+  .card-header .d-flex.gap-2 {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .card-header .btn {
+    width: 100% !important;
+  }
+}
+
+/* Program Access Styles */
+.product-content {
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+.product-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.product-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.product-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.product-content::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Table responsiveness for product access */
+.table > :not(caption) > * > * {
+  padding: 1rem 0.75rem;
+  vertical-align: top;
+}
+
+.btn-group-vertical .btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.table .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+/* Product content container */
+.table td .d-flex.align-items-start {
+  min-height: 60px;
+}
+
+/* Status badge styling */
+.badge.bg-success {
+  background-color: #198754 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
 }
