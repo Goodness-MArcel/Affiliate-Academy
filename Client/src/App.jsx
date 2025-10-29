@@ -14,6 +14,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
 import Program from './components/Users/ProgramAccess.jsx';
 import Profile from './components/Users/Profile.jsx';
+import ProgramAccess from './components/Users/ProgramAccess.jsx';
 
 const Layout = () => {
   const location = useLocation();
@@ -45,6 +46,7 @@ const Layout = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+                <ProgramAccess  />
               </ProtectedRoute>
             }
           />
