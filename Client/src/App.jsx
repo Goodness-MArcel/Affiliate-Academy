@@ -18,7 +18,7 @@ import Estate from './components/Users/Estates.jsx';
 import Product from './components/Users/Products.jsx';
 import Payment from './components/Users/Payment.jsx';
 import Invite from './components/Users/Invite.jsx';
-import Achievement from './components/Users/Achivement.jsx';
+
 
 const Layout = () => {
   const location = useLocation();
@@ -101,14 +101,7 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/dashboard/achievement"
-            element={
-              <ProtectedRoute>
-                <Achievement />
-              </ProtectedRoute>
-            }
-          />
+          
 
 
           {/* 404 Not Found */}
