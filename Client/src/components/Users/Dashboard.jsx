@@ -1,14 +1,16 @@
 import Sidebar from './UserLayout/sidebar';
 import "./Css/Dashboard.css";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Smallfooter from "./UserLayout/smallfooter";
 import affiliateVideo from "../../assets/affilatevidoe.mp4";
 import { useUser } from '../../context/userContext';
-import ProgramAccess from './ProgramAccess.jsx';
+import Invite from './Invite.jsx';
 
 
 const Dashboard = () => {
   const {logout} = useUser();
+  const navigate = useNavigate();
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
@@ -84,23 +86,20 @@ const Dashboard = () => {
       <Sidebar />
       
       <main className="dashboard-main">
-        <div className="dashboard-content">
+        <div className="dashboard-content px-2 px-md-3">
           {/* Dashboard Header with Currency Selector */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <div>
-              <h1 className="mb-0">Dashboard</h1>
+          <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 mb-md-4">
+            <div className="mb-2 mb-sm-0">
+              <h1 className="mb-0 fs-2 fs-md-1">Dashboard</h1>
             </div>
             <div>
               <div className="d-flex align-items-center gap-2">
-                {/* <label htmlFor="currencySelect" className="mb-0 fw-semibold text-muted">
-                  Currency:
-                </label> */}
                 <select 
                   id="currencySelect"
                   className="form-select form-select-sm currency-select" 
                   value={selectedCurrency}
                   onChange={(e) => setSelectedCurrency(e.target.value)}
-                  style={{ width: 'auto', minWidth: '80px', fontSize: '0.85rem' }}
+                  style={{ width: 'auto', minWidth: '70px', fontSize: '0.8rem' }}
                 >
                   {currencies.map((currency) => (
                     <option key={currency.code} value={currency.code}>
@@ -113,11 +112,11 @@ const Dashboard = () => {
           </div>
 
           {loading ? (
-            <div className="text-center py-5">
+            <div className="text-center py-4 py-md-5">
               <div className="spinner-border text-success" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
-              <p className="mt-3 text-muted">Loading dashboard data...</p>
+              <p className="mt-3 text-muted small">Loading dashboard data...</p>
             </div>
           ) : (
             <>
@@ -144,13 +143,13 @@ const Dashboard = () => {
                       <div className="card-body p-3">
                         <div className="d-flex justify-content-between align-items-center">
                           <div className="flex-grow-1">
-                            <p className="mb-1 small fw-semibold text-dark opacity-75">Today Earning</p>
+                            <p className="mb-1 small fw-semibold text-dark opacity-75">Total Earning</p>
                             <h4 className="mb-1 fw-bold text-dark">
                               {formatCurrency(dashboardData.stats.todayEarning.value)}
                             </h4>
                             <small className="text-dark opacity-75">
                               <i className={`bi bi-arrow-${dashboardData.stats.todayEarning.trend === 'up' ? 'up' : 'down'}`}></i> 
-                              {' '}Today's earnings
+                              {' '}earnings
                             </small>
                           </div>
                           <div className="stat-icon-small bg-white bg-opacity-25 text-dark">
@@ -188,13 +187,23 @@ const Dashboard = () => {
                       <div className="card-body p-3">
                         <div className="d-flex justify-content-between align-items-center">
                           <div className="flex-grow-1">
-                            <p className="mb-1 small fw-semibold text-dark opacity-75">Payout</p>
+                            <p className="mb-1 small fw-semibold text-dark opacity-75">Balance</p>
                             <h4 className="mb-1 fw-bold text-dark">
                               {formatCurrency(dashboardData.stats.payout.value)}
                             </h4>
                             <small className="text-dark opacity-75">
                               <i className="bi bi-wallet2"></i> Available balance
                             </small>
+                            <div className="mt-2">
+                              <button 
+                                className="btn btn-sm btn-outline-dark d-flex align-items-center gap-1"
+                                onClick={() => navigate('/dashboard/payment')}
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                              >
+                                <i className="bi bi-arrow-up-circle" style={{ fontSize: '0.8rem' }}></i>
+                                Withdraw
+                              </button>
+                            </div>
                           </div>
                           <div className="stat-icon-small bg-white bg-opacity-25 text-dark">
                             <i className="bi bi-wallet2"></i>
@@ -227,9 +236,9 @@ const Dashboard = () => {
                 </div>
               </div>
                 
-              {/* Program Access Section - Full Width */}
+              {/* Invite Section - Full Width */}
               <div className="mt-4">
-                <ProgramAccess formatCurrency={formatCurrency} embedded={true} />
+                        <Invite embedded={true} />
               </div>
             </>
           )}

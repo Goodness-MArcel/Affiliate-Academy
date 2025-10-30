@@ -13,51 +13,37 @@ const Products = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [copiedLinks, setCopiedLinks] = useState({});
-  const [userPrograms, setUserPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   
   console.log('Products state - loading:', loading, 'courses count:', courses.length, 'user:', user?.id);
 
-  // Fetch user's purchased/enrolled programs
-  const fetchUserPrograms = React.useCallback(async () => {
-    if (!user?.id) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_programs') // This table will store user's enrolled courses
-        .select('course_id')
-        .eq('users_id', user.id); // Fixed: using users_id instead of user_id
-      
-      if (error) throw error;
-      
-      const programIds = data.map(item => item.course_id);
-      setUserPrograms(programIds);
-    } catch (error) {
-      console.error('Error fetching user programs:', error);
-    }
-  }, [user?.id]);
-
   // Fetch ALL courses from Supabase database (no conditions)
   const fetchCourses = React.useCallback(async () => {
     try {
+      console.log(' Fetching courses from database...');
       const { data, error } = await supabase
         .from('courses') // Fetch from courses table
         .select('*'); // Select all columns, no conditions, no ordering
       
       if (error) {
+        console.error(' Database error:', error);
         throw error;
       }
       
+      console.log('Raw courses data:', data);
+      console.log('Number of courses found:', data?.length || 0);
+
       // Set ALL courses regardless of status or any other condition
       setCourses(data || []);
       
       if (data && data.length > 0) {
         console.log(' Successfully loaded', data.length, 'courses');
+        console.log(' Sample course:', data[0]);
       } else {
-        console.warn('No courses found in database table');
+        console.warn(' No courses found in database table');
       }
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error(' Error fetching courses:', error);
       setCourses([]);
     }
   }, []);
@@ -71,14 +57,6 @@ const Products = () => {
         // Fetch courses from Supabase database
         await fetchCourses();
         
-        // Fetch user's programs from Supabase
-        if (user?.id) {
-          console.log('Fetching user programs for user:', user.id);
-          await fetchUserPrograms();
-        } else {
-          console.log('No user ID available, skipping user programs fetch');
-        }
-        
         setLoading(false);
         console.log('Data loading completed');
       } catch (error) {
@@ -88,47 +66,12 @@ const Products = () => {
     };
 
     loadData();
-  }, [user?.id, fetchUserPrograms, fetchCourses]);
+  }, [user?.id, fetchCourses]);
 
-  // Handle Get Started - Add course to user's program access
-  const handleGetStarted = async (course) => {
-    if (userPrograms.includes(course.id)) {
-      // Already enrolled, redirect to program access
-      navigate('/dashboard/program-access');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Add course to user_programs table
-      const { error } = await supabase
-        .from('user_programs')
-        .insert([
-          {
-            users_id: user.id, // Fixed: using users_id instead of user_id
-            course_id: course.id,
-            product_name: course.title,
-            description: course.description,
-            enrolled_at: new Date().toISOString()
-          }
-        ]);
-
-      if (error) throw error;
-
-      // Update local state
-      setUserPrograms(prev => [...prev, course.id]);
-      
-      // Redirect to program access
-      setTimeout(() => {
-        navigate('/dashboard/program-access');
-      }, 500);
-      
-    } catch (error) {
-      console.error('Error enrolling in course:', error);
-      alert('Failed to enroll in course. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  // Handle Get Started - Navigate to program access for course enrollment
+  const handleGetStarted = (course) => {
+    // Navigate to program access where enrollment will be handled
+    navigate('/dashboard/program-access', { state: { selectedCourse: course } });
   };
 
   // Generate referral link for course
@@ -275,35 +218,14 @@ const Products = () => {
                               </td>
                               <td className="align-middle">
                                 <div className="btn-group-vertical gap-1">
-                                  {userPrograms.includes(course.id) ? (
-                                    <button 
-                                      className="btn btn-success btn-sm"
-                                      title="Access Course"
-                                      onClick={() => navigate('/dashboard/program-access')}
-                                    >
-                                      <i className="bi bi-check-circle me-1"></i>
-                                      Access
-                                    </button>
-                                  ) : (
-                                    <button 
-                                      className="btn btn-outline-success btn-sm"
-                                      title="Get Started"
-                                      onClick={() => handleGetStarted(course)}
-                                      disabled={loading}
-                                    >
-                                      {loading ? (
-                                        <>
-                                          <span className="spinner-border spinner-border-sm me-1" role="status"></span>
-                                          Enrolling...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <i className="bi bi-play-circle me-1"></i>
-                                          Get Started
-                                        </>
-                                      )}
-                                    </button>
-                                  )}
+                                  <button 
+                                    className="btn btn-outline-success btn-sm"
+                                    title="Get Started"
+                                    onClick={() => handleGetStarted(course)}
+                                  >
+                                    <i className="bi bi-play-circle me-1"></i>
+                                    Get Started
+                                  </button>
                                 </div>
                               </td>
                             </tr>
