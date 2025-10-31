@@ -85,6 +85,15 @@ export const UserProvider = ({ children }) => {
   }, [user, fetchProfile]);
 
   // -------------------------------------------------
+  // 2.5. Refresh profile helper
+  // -------------------------------------------------
+  const refreshProfile = useCallback(async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
+    }
+  }, [user?.id, fetchProfile]);
+
+  // -------------------------------------------------
   // 3. Register helper
   // -------------------------------------------------
   const register = async ({
@@ -237,6 +246,7 @@ export const UserProvider = ({ children }) => {
     register,
     login,
     logout,
+    refreshProfile,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
