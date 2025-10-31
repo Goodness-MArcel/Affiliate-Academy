@@ -24,22 +24,30 @@ const Dashboard = () => {
   });
 
   // Get currency info from user profile
-  const getCurrencySymbol = () => {
-    if (!profile?.currency) return '$';
+  const getCurrencyInfo = () => {
+    if (!profile?.currency) {
+      console.log('No currency found in profile, using USD as default');
+      return { code: 'USD', symbol: '$' };
+    }
     
-    const currencySymbols = {
-      'USD': '$',
-      'EUR': '€',
-      'GBP': '£',
-      'NGN': '₦',
-      'GHS': '₵',
-      'KES': 'KSh',
-      'ZAR': 'R',
-      'INR': '₹',
-    };
-    
-    return currencySymbols[profile.currency] || '$';
+    try {
+      // Extract currency code from stored format like "USD ($)" or "NGN (₦)"
+      const currencyMatch = profile.currency.match(/^([A-Z]{3})/);
+      const currencyCode = currencyMatch ? currencyMatch[1] : 'USD';
+      
+      // Extract symbol from stored format
+      const symbolMatch = profile.currency.match(/\(([^)]+)\)/);
+      const currencySymbol = symbolMatch ? symbolMatch[1] : '$';
+      
+      console.log(`Using currency: ${currencyCode} (${currencySymbol}) from profile: ${profile.currency}`);
+      return { code: currencyCode, symbol: currencySymbol };
+    } catch (error) {
+      console.error('Error parsing currency from profile:', error);
+      return { code: 'USD', symbol: '$' };
+    }
   };
+
+
 
   // Fetch dashboard data from Supabase
   useEffect(() => {
@@ -149,8 +157,20 @@ const Dashboard = () => {
 
   // Format currency using user's selected currency
   const formatCurrency = (amount) => {
-    const symbol = getCurrencySymbol();
-    return `${symbol}${amount.toLocaleString()}`;
+    const { code, symbol } = getCurrencyInfo();
+    
+    // Format number with proper locale for the currency
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    
+    // Handle different symbol positions based on currency
+    if (code === 'EUR') {
+      return `${formattedNumber}${symbol}`;
+    } else {
+      return `${symbol}${formattedNumber}`;
+    }
   };
 
 
@@ -167,9 +187,16 @@ const Dashboard = () => {
               <h1 className="mb-0 fs-2 fs-md-1">Dashboard</h1>
             </div>
             <div className="d-flex align-items-center gap-2">
-              {profile?.currency && (
-                <span className="badge bg-success-subtle text-success border border-success-subtle">
-                  {profile.currency}
+              {profile?.currency ? (
+                <span 
+                  className="badge bg-success-subtle text-success border border-success-subtle"
+                  title={`Currency: ${profile.currency}`}
+                >
+                  {getCurrencyInfo().symbol} {getCurrencyInfo().code}
+                </span>
+              ) : (
+                <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                  Loading currency...
                 </span>
               )}
               <button 
