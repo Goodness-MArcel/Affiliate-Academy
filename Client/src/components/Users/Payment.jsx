@@ -5,7 +5,7 @@ import Sidebar from "./UserLayout/sidebar"
 import Smallfooter from "./UserLayout/smallfooter"
 
 const Payment = () => {
-  const { user } = useUser()
+  const { user, profile } = useUser()
   const [withdrawalData, setWithdrawalData] = useState({
     amount: '',
     accountDetails: ''
@@ -14,6 +14,45 @@ const Payment = () => {
   const [showSuccess, setShowSuccess] = useState(false)
   const [balance, setBalance] = useState(0)
   const [loadingBalance, setLoadingBalance] = useState(true)
+
+  // Get currency info from user profile
+  const getCurrencyInfo = () => {
+    if (!profile?.currency) {
+      return { code: 'USD', symbol: '$' };
+    }
+    
+    try {
+      // Extract currency code from stored format like "USD ($)" or "NGN (₦)"
+      const currencyMatch = profile.currency.match(/^([A-Z]{3})/);
+      const currencyCode = currencyMatch ? currencyMatch[1] : 'USD';
+      
+      // Extract symbol from stored format
+      const symbolMatch = profile.currency.match(/\(([^)]+)\)/);
+      const currencySymbol = symbolMatch ? symbolMatch[1] : '$';
+      
+      return { code: currencyCode, symbol: currencySymbol };
+    } catch (error) {
+      console.error('Error parsing currency from profile:', error);
+      return { code: 'USD', symbol: '$' };
+    }
+  };
+
+  // Format currency using user's selected currency
+  const formatCurrency = (amount) => {
+    const { code, symbol } = getCurrencyInfo();
+    
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    
+    // Handle different symbol positions based on currency
+    if (code === 'EUR') {
+      return `${formattedNumber}${symbol}`;
+    } else {
+      return `${symbol}${formattedNumber}`;
+    }
+  };
 
   // Fetch user balance from database
   const fetchBalance = async () => {
@@ -65,13 +104,13 @@ const Payment = () => {
     const amount = parseFloat(withdrawalData.amount)
 
     // Validation checks
-    if (amount < 50) {
-      alert('Minimum withdrawal amount is 50')
+    if (amount <= 0) {
+      alert('Please enter a valid withdrawal amount')
       return
     }
 
     if (amount > balance) {
-      alert('Insufficient balance. Available balance: ' + balance.toFixed(2))
+      alert(`Insufficient balance. Available balance: ${formatCurrency(balance)}`)
       return
     }
 
@@ -93,7 +132,7 @@ const Payment = () => {
             account_details: withdrawalData.accountDetails,
             status: 'pending',
             request_date: new Date().toISOString(),
-            currency: 'USD' // You can make this dynamic based on user preference
+            currency: getCurrencyInfo().code
           }
         ])
         .select()
@@ -156,12 +195,24 @@ const Payment = () => {
           {/* Header */}
           <div className="row mb-3 mb-md-4">
             <div className="col-12">
-              <h2 className="mb-1 fs-3 fs-md-2">
-                <i className="bi bi-credit-card me-2 text-success"></i>
-                <span className="d-none d-sm-inline">Payment & Withdrawals</span>
-                <span className="d-inline d-sm-none">Withdrawals</span>
-              </h2>
-              <p className="text-muted mb-0 small">Manage your earnings and request withdrawals</p>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h2 className="mb-1 fs-3 fs-md-2">
+                    <i className="bi bi-credit-card me-2 text-success"></i>
+                    <span className="d-none d-sm-inline">Payment & Withdrawals</span>
+                    <span className="d-inline d-sm-none">Withdrawals</span>
+                  </h2>
+                  <p className="text-muted mb-0 small">Manage your earnings and request withdrawals</p>
+                </div>
+                {profile?.currency && (
+                  <span 
+                    className="badge bg-success-subtle text-success border border-success-subtle"
+                    title={`Currency: ${profile.currency}`}
+                  >
+                    {getCurrencyInfo().symbol} {getCurrencyInfo().code}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -206,12 +257,14 @@ const Payment = () => {
                           value={withdrawalData.amount}
                           onChange={handleInputChange}
                           placeholder="0.00"
-                          min="50"
+                          min="0.01"
                           step="0.01"
+                          max={balance}
                           required
                         />
                         <div className="d-flex justify-content-between align-items-center mt-2">
-                          <div className="form-text small">Minimum withdrawal: 50.00</div>
+                          <div className="d-flex align-items-center gap-2">
+                          </div>
                           <div className="text-end">
                             {loadingBalance ? (
                               <div className="d-flex align-items-center">
@@ -221,7 +274,7 @@ const Payment = () => {
                             ) : (
                               <div>
                                 <small className="text-muted d-block">Available Balance</small>
-                                <strong className="text-success fs-6">{balance.toFixed(2)}</strong>
+                                <strong className="text-success fs-6">{formatCurrency(balance)}</strong>
                               </div>
                             )}
                           </div>
