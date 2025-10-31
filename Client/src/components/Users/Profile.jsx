@@ -7,7 +7,7 @@ import { supabase } from "../../../supabase";
 import "./Css/Dashboard.css";
 
 const Profile = () => {
-  const { user, profile, refreshProfile } = useUser();
+  const { user, profile } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
@@ -98,96 +98,53 @@ const Profile = () => {
     setMessage({ text: "Uploading avatar...", type: "success" });
 
     try {
-      // Verify user is authenticated
-      if (!user?.id) {
-        throw new Error('User not authenticated');
-      }
-
-      // Delete existing avatar if it exists and is from our storage
-      if (profile?.avatar_url && profile.avatar_url.includes('supabase.co/storage')) {
-        try {
-          const urlParts = profile.avatar_url.split('/');
-          const oldFileName = urlParts[urlParts.length - 1];
-          console.log('Attempting to delete old avatar:', oldFileName);
-          
-          const { error: deleteError } = await supabase.storage
-            .from('avatars')
-            .remove([oldFileName]);
-          
-          if (deleteError) {
-            console.warn('Failed to delete old avatar:', deleteError.message);
-          }
-        } catch (deleteErr) {
-          console.warn('Error deleting old avatar:', deleteErr);
-        }
+      // Delete existing avatar if it exists
+      if (profile?.avatar_url && profile.avatar_url.includes('supabase')) {
+        const oldFileName = profile.avatar_url.split('/').pop();
+        await supabase.storage.from('avatars').remove([oldFileName]);
       }
 
       // Upload new avatar
-      const fileExt = file.name.split('.').pop().toLowerCase();
+      const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       
-      console.log('Uploading new avatar:', fileName);
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: true // Allow overwrite if file exists
+          upsert: false
         });
 
       if (uploadError) {
-        console.error('Upload error details:', uploadError);
-        
-        // Check if bucket exists
-        if (uploadError.message.includes('not found') || uploadError.message.includes('bucket')) {
-          throw new Error('Avatar storage bucket not found. Please contact support.');
+        // If avatars bucket doesn't exist, try to create it or use a different approach
+        if (uploadError.message.includes('not found')) {
+          throw new Error('Avatar storage not configured. ');
         }
-        
-        throw new Error(`Upload failed: ${uploadError.message}`);
+        throw uploadError;
       }
 
-      console.log('Upload successful:', uploadData);
-
       // Get public URL
-      const { data: urlData } = supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
 
-      if (!urlData?.publicUrl) {
-        throw new Error('Failed to get public URL for uploaded image');
-      }
-
-      const newAvatarUrl = urlData.publicUrl;
-      console.log('New avatar URL:', newAvatarUrl);
-
       // Update user profile with new avatar URL
-      const { data: updateData, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
         .update({ 
-          avatar_url: newAvatarUrl,
+          avatar_url: publicUrl,
           updated_at: new Date().toISOString()
         })
-        .eq('id', user.id)
-        .select('avatar_url')
-        .single();
+        .eq('id', user.id);
 
-      if (updateError) {
-        console.error('Database update error:', updateError);
-        throw new Error(`Failed to update profile: ${updateError.message}`);
-      }
-
-      console.log('Profile updated successfully:', updateData);
+      if (updateError) throw updateError;
 
       setMessage({ text: "Avatar updated successfully!", type: "success" });
       
-      // Refresh the profile context to show updated avatar
-      await refreshProfile();
-      
-      // Clear success message after a delay
+      // Refresh to show new avatar
       setTimeout(() => {
-        setMessage({ text: "", type: "" });
-      }, 3000);
-
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error('Avatar upload error:', error);
       setMessage({ 
