@@ -95,6 +95,7 @@ export const UserProvider = ({ children }) => {
     country,
     paymentMethod,
     agreedToTerms,
+    referralCode,
   }) => {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
@@ -105,6 +106,7 @@ export const UserProvider = ({ children }) => {
     if (authError) throw authError;
     if (!authData.user) throw new Error('No user returned after signup');
 
+    // Insert user profile
     const { error: profileError } = await supabase.from('users').insert({
       id: authData.user.id,
       full_name: fullName,
@@ -119,6 +121,76 @@ export const UserProvider = ({ children }) => {
     if (profileError) {
       await supabase.auth.admin.deleteUser(authData.user.id);
       throw profileError;
+    }
+
+    // Create user balance record
+    const { error: balanceError } = await supabase.from('user_balances').insert({
+      user_id: authData.user.id,
+      available_balance: 0,
+      pending_balance: 0,
+    });
+
+    if (balanceError) {
+      console.error('Error creating user balance:', balanceError);
+    }
+
+    // Handle referral tracking
+    if (referralCode) {
+      try {
+        // Create referral record
+        const { error: referralError } = await supabase.from('user_referrals').insert({
+          referrer_id: referralCode,
+          referred_id: authData.user.id,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        });
+
+        if (referralError) {
+          console.error('Error creating referral record:', referralError);
+        } else {
+          // Award commission to referrer (e.g., 10% of registration fee or fixed amount)
+          const commissionAmount = 500; // ₦5.00 commission for successful referral
+          
+          const { error: commissionError } = await supabase.from('referral_commissions').insert({
+            referrer_id: referralCode,
+            referred_id: authData.user.id,
+            amount: commissionAmount,
+            commission_type: 'registration',
+            created_at: new Date().toISOString(),
+          });
+
+          if (commissionError) {
+            console.error('Error creating commission record:', commissionError);
+          } else {
+            // Update referrer's balance
+            const { error: updateBalanceError } = await supabase.rpc('increment_balance', {
+              user_id: referralCode,
+              amount: commissionAmount
+            });
+
+            if (updateBalanceError) {
+              // Fallback: manual balance update
+              const { data: currentBalance, error: fetchError } = await supabase
+                .from('user_balances')
+                .select('available_balance')
+                .eq('user_id', referralCode)
+                .single();
+
+              if (!fetchError && currentBalance) {
+                await supabase
+                  .from('user_balances')
+                  .update({ 
+                    available_balance: currentBalance.available_balance + commissionAmount 
+                  })
+                  .eq('user_id', referralCode);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing referral:', error);
+        // Don't fail registration if referral processing fails
+      }
     }
 
     setUser(authData.user);

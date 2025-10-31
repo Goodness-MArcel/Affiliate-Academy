@@ -148,17 +148,28 @@ const Faqs = () => {
       {/* Banner Section */}
       <section className="faqs-banner">
         <div className="banner-overlay"></div>
-        <div className="container">
-          <div className="text-center banner-content">
-            <h1 className="banner-title">
-              Frequently Asked <span className="text-success">Questions</span>
-            </h1>
-            <p className="banner-subtitle">
-              Find answers to common questions about Affiliate Academy
-            </p>
-            <p className="banner-description">
-              Can't find what you're looking for? <Link to="/contact" className="text-success fw-bold">Contact our support team</Link>
-            </p>
+        <div className="container-fluid h-100">
+          <div className="row h-100 align-items-center justify-content-center">
+            <div className="col-12 col-md-10 col-lg-8 col-xl-6">
+              <div className="banner-content text-center">
+                <h1 className="banner-title animate__animated animate__fadeInUp">
+                  <span className="text-white">Frequently Asked Questions</span>
+                </h1>
+                <h2 className="banner-subtitle animate__animated animate__fadeInUp animate__delay-1s">
+                  Find Your <span className="text-success">Answers</span>
+                </h2>
+                <p className="banner-description animate__animated animate__fadeInUp animate__delay-2s">
+                  We are here to help you with all your questions about Affiliate Academy. 
+                  Get the information you need to start your journey with us.
+                </p>
+                <div className="banner-button animate__animated animate__fadeInUp animate__delay-3s">
+                  <Link to="/contact" className="btn btn-success btn-lg px-4 py-3">
+                    <i className="bi bi-headset me-2"></i>
+                    CONTACT SUPPORT
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

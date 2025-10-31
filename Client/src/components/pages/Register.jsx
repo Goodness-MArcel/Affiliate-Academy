@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../../context/userContext';
 import { countries } from './userCountries.js';
 import PaystackPayment from '../../payment/PaystackPayment.jsx';
@@ -8,6 +8,7 @@ import './Register.css';
 const Register = () => {
   const { register } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -25,11 +26,21 @@ const Register = () => {
   const [selectedCurrency, setSelectedCurrency] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
 
   const [showPaymentScreen, setShowPaymentScreen] = useState(false);
   const [paymentRef, setPaymentRef] = useState('');
   const [paymentAmount] = useState(5000); // ₦50.00
   const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+  // Extract referral code from URL parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      setReferralCode(refParam);
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -104,6 +115,7 @@ const Register = () => {
         agreedToTerms: formData.agreedToTerms,
         paymentRef: referenceObj.reference,
         paid: true,
+        referralCode: referralCode || null, // Pass referral code if available
       });
 
       // 3. Redirect
@@ -137,6 +149,17 @@ const Register = () => {
               <h1>Create Account</h1>
               <p>Join Affiliate Academy and start your journey</p>
             </div>
+
+            {referralCode && (
+              <div className="alert alert-success d-flex align-items-center">
+                <i className="bi bi-gift me-2"></i>
+                <div>
+                  <strong>Referral Bonus!</strong>
+                  <br />
+                  <small>You're joining through a referral link. Complete registration to earn rewards for both you and your referrer!</small>
+                </div>
+              </div>
+            )}
 
             {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 

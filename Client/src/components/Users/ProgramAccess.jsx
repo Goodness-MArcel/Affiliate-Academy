@@ -1,65 +1,180 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from 'react-router-dom';
+import { supabase } from '../../../supabase';
+import { useUser } from '../../context/userContext';
 import Sidebar from './UserLayout/sidebar';
 import Smallfooter from "./UserLayout/smallfooter";
 import "./Css/Dashboard.css";
 
-const ProgramAccess = ({ formatCurrency:  embedded = false }) => {
+const ProgramAccess = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
-  const [purchasedProducts, setPurchasedProducts] = useState([]);
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [error, setError] = useState(null);
+  const location = useLocation();
+  const { user } = useUser();
 
-  const currencies = [
-    { code: 'USD', symbol: '$', name: 'US Dollar' },
-    { code: 'EUR', symbol: '€', name: 'Euro' },
-    { code: 'GBP', symbol: '£', name: 'British Pound' },
-    { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
-    { code: 'GHS', symbol: '₵', name: 'Ghanaian Cedi' },
-    { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling' },
-    { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
-    { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  ];
+  // Save selected courses to database
+  const saveSelectedCourses = async (courses) => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          selected_course: JSON.stringify(courses),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
-  const handleAccessProduct = () => {
-        console.log("Watching video");
-        alert("Watching video");
+      if (error) {
+        console.error('Error saving selected courses:', error);
+      }
+    } catch (error) {
+      console.error('Error saving courses to database:', error);
+    }
+  };
+
+  // Add a new course to the selected courses list
+  const addSelectedCourse = async (newCourse) => {
+    if (!user?.id || !newCourse) return;
+
+    setSelectedCourses(prevCourses => {
+      // Check if course already exists (prevent duplicates)
+      const existingCourse = prevCourses.find(course => course.id === newCourse.id);
+      
+      let updatedCourses;
+      if (existingCourse) {
+        // Course exists, update it instead of adding duplicate
+        updatedCourses = prevCourses.map(course => 
+          course.id === newCourse.id ? newCourse : course
+        );
+        console.log("Updated existing course:", newCourse.courseName);
+      } else {
+        // Add new course to the beginning of the list
+        updatedCourses = [newCourse, ...prevCourses];
+        console.log("Added new course:", newCourse.courseName);
       }
 
-  
+      // Save to database
+      saveSelectedCourses(updatedCourses);
+      
+      return updatedCourses;
+    });
+  };
+
+  // Load selected courses from database
+  const loadSelectedCourses = async () => {
+    if (!user?.id) return [];
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('selected_course')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading selected courses:', error);
+        return [];
+      }
+
+      if (data?.selected_course) {
+        const parsed = JSON.parse(data.selected_course);
+        // Handle both single course (old format) and array (new format)
+        return Array.isArray(parsed) ? parsed : [parsed];
+      }
+      return [];
+    } catch (error) {
+      console.error('Error loading courses from database:', error);
+      return [];
+    }
+  };
+
+  // Remove a specific course from the list
+  const removeCourse = async (courseId) => {
+    if (!user?.id) return;
+    
+    setSelectedCourses(prevCourses => {
+      const updatedCourses = prevCourses.filter(course => course.id !== courseId);
+      
+      // Save to database
+      if (updatedCourses.length === 0) {
+        // If no courses left, clear the database field
+        clearAllCourses();
+      } else {
+        saveSelectedCourses(updatedCourses);
+      }
+      
+      return updatedCourses;
+    });
+  };
+
+  // Clear all selected courses from database
+  const clearAllCourses = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          selected_course: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error clearing selected courses:', error);
+      } else {
+        setSelectedCourses([]);
+      }
+    } catch (error) {
+      console.error('Error clearing courses from database:', error);
+    }
+  };
+
+  const handleAccessProduct = (course) => {
+    console.log("Accessing course:", course.courseName);
+    alert(`Starting ${course.courseName} course`);
+  }
+
   useEffect(() => {
-    const fetchPurchasedProducts = async () => {
+    const initializeCourses = async () => {
       try {
         setLoading(true);
+        setError(null);
         
-        // TODO: Replace with actual API call
-        // const response = await fetch('/api/purchased-products', {
-        //   headers: {
-        //     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        //     'Content-Type': 'application/json'
-        //   }
-        // });
-        // const data = await response.json();
+        // First, load existing courses from database
+        const savedCourses = await loadSelectedCourses();
+        setSelectedCourses(savedCourses);
         
-        // Mock data - Replace with actual API data
-        const mockData = [
-          {
-            id: 1,
-            productName: 'Complete Digital Marketing Mastery Course',
-            description: 'This comprehensive course covers all aspects of digital marketing including SEO, social media marketing, email marketing, content marketing, PPC advertising, analytics, and conversion optimization. You will learn how to create effective marketing strategies, build brand awareness, generate leads, and increase sales through various digital channels. The course includes practical exercises, real-world case studies, and access to premium marketing tools. Perfect for beginners and intermediate marketers looking to advance their skills.',
-          },
-        ];
-
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Then, check if there's a new course from navigation state (from Products page)
+        const courseFromState = location.state?.selectedCourse;
         
-        setPurchasedProducts(mockData);
+        if (courseFromState) {
+          // Add/update the new course to the existing list
+          await addSelectedCourse(courseFromState);
+          console.log("Added course from Products:", courseFromState.courseName);
+        } else if (savedCourses.length > 0) {
+          console.log("Loaded", savedCourses.length, "courses from database");
+        } else {
+          console.log("No courses selected - showing empty state");
+        }
+        
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching purchased products:', error);
+        console.error('Error initializing courses:', error);
+        setError('Failed to load course information');
         setLoading(false);
       }
     };
 
-    fetchPurchasedProducts();
-  }, []);
+    // Only initialize if user is available
+    if (user) {
+      initializeCourses();
+    } else {
+      setLoading(false);
+    }
+  }, [location.state, user]);
 
   // Content to display (table section)
   const tableContent = (
@@ -69,76 +184,136 @@ const ProgramAccess = ({ formatCurrency:  embedded = false }) => {
           <div className="spinner-border text-success" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="mt-3 text-muted">Loading purchased products...</p>
+          <p className="mt-3 text-muted">Loading course...</p>
+        </div>
+      ) : error ? (
+        <div className="card">
+          <div className="card-body text-center py-5">
+            <i className="bi bi-exclamation-triangle-fill text-warning mb-3" style={{ fontSize: '4rem' }}></i>
+            <h4 className="mb-3 text-warning">Error Loading Course</h4>
+            <p className="text-muted mb-4">{error}</p>
+            <button 
+              className="btn btn-outline-success"
+              onClick={() => window.location.reload()}
+            >
+              <i className="bi bi-arrow-clockwise me-2"></i>
+              Try Again
+            </button>
+          </div>
+        </div>
+      ) : selectedCourses.length > 0 ? (
+        <div className="row g-4">
+          {selectedCourses.map((course, index) => (
+            <div key={course.id || index} className="col-12">
+              <div className="card h-100">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                  <h5 className="mb-0">
+                    <i className="bi bi-mortarboard text-success me-2"></i>
+                    {course.courseName}
+                  </h5>
+                  <div className="d-flex gap-2 align-items-center">
+                    <span className="badge bg-success">Ready to Access</span>
+                    <button 
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => removeCourse(course.id)}
+                      title="Remove this course"
+                    >
+                      <i className="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-lg-8">
+                      {course.description && (
+                        <div className="course-description text-muted mb-3" style={{ lineHeight: '1.6' }}>
+                          {course.description}
+                        </div>
+                      )}
+                      
+                      {/* Course Features */}
+                      {course.features && course.features.length > 0 && (
+                        <div className="mb-3">
+                          <h6 className="fw-semibold mb-2">Course Features:</h6>
+                          <div className="row">
+                            {course.features.map((feature, featureIndex) => (
+                              <div key={featureIndex} className="col-md-6 mb-1">
+                                <small>
+                                  <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                  {feature}
+                                </small>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Course Stats */}
+                      <div className="row g-2">
+                        {course.price && (
+                          <div className="col-6 col-md-4">
+                            <div className="text-center p-2 bg-light rounded">
+                              <div className="fw-bold text-success small">${course.price}</div>
+                              <small className="text-muted">Price</small>
+                            </div>
+                          </div>
+                        )}
+                        {course.commissionRate && (
+                          <div className="col-6 col-md-4">
+                            <div className="text-center p-2 bg-light rounded">
+                              <div className="fw-bold text-primary small">{course.commissionRate}%</div>
+                              <small className="text-muted">Commission</small>
+                            </div>
+                          </div>
+                        )}
+                        <div className="col-6 col-md-4">
+                          <div className="text-center p-2 bg-light rounded">
+                            <div className="fw-bold text-info small">Active</div>
+                            <small className="text-muted">Status</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="col-lg-4">
+                      <div className="text-center h-100 d-flex flex-column justify-content-center">
+                        <div className="mb-3">
+                          <i className="bi bi-play-btn-fill text-success" style={{ fontSize: '3rem' }}></i>
+                        </div>
+                        <button 
+                          className="btn btn-success w-100 mb-2"
+                          title="Start Course"
+                          onClick={() => handleAccessProduct(course)}
+                        >
+                          <i className="bi bi-play-circle me-2"></i>
+                          Start Course
+                        </button>
+                        <small className="text-muted">
+                          Begin learning now
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="card">
-          <div className="card-header">
-            <h5 className="mb-0">Purchased Products</h5>
-          </div>
-          <div className="card-body">
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead className="table-light">
-                  <tr>
-                    <th scope="col" style={{ width: '50%' }}>Product</th>
-                    <th scope="col" style={{ width: '20%' }}></th>
-                    <th scope="col" style={{ width: '20%' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {purchasedProducts && purchasedProducts.length > 0 ? (
-                    purchasedProducts.map((product) => (
-                      <tr key={product.id}>
-                        <td>
-                          <div className="d-flex align-items-start">
-                            <i className="bi bi-box-seam text-success me-3 mt-1 flex-shrink-0"></i>
-                            <div className="flex-grow-1">
-                              <div className="fw-semibold mb-1">{product.productName}</div>
-                              {product.description && (
-                                <div 
-                                  className="product-content text-muted small"
-                                  style={{
-                                    maxHeight: '120px',
-                                    overflowY: 'auto',
-                                    lineHeight: '1.4',
-                                    paddingRight: '8px'
-                                  }}
-                                >
-                                  {product.description}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="align-middle">
-                        </td>
-                        <td className="align-middle">
-                          <div className="btn-group-vertical gap-1">
-                            <button 
-                              className="btn btn-outline-success btn-sm"
-                              title="Access Product"
-                              onClick={() => handleAccessProduct(product)}
-                            >
-                              <i className="bi bi-play-circle me-1"></i>
-                              Access
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="3" className="text-center text-muted py-5">
-                        <i className="bi bi-inbox fs-1 d-block mb-3"></i>
-                        <h5>No purchased products yet</h5>
-                        <p className="mb-0">Your purchased products will appear here once you make a purchase.</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="card-body text-center py-5">
+            <i className="bi bi-mortarboard-fill text-muted mb-3" style={{ fontSize: '4rem' }}></i>
+            <h4 className="mb-3">No Courses Selected</h4>
+            <p className="text-muted mb-4">
+              Select courses from the Products page to build your learning library here.
+            </p>
+            <button 
+              className="btn btn-outline-success"
+              onClick={() => window.history.back()}
+            >
+              <i className="bi bi-arrow-left me-2"></i>
+              Go to Products
+            </button>
           </div>
         </div>
       )}
@@ -161,35 +336,27 @@ const ProgramAccess = ({ formatCurrency:  embedded = false }) => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h1 className="mb-0">Program Access</h1>
+              {selectedCourses.length > 0 && (
+                <p className="text-muted mb-0 mt-1">
+                  {selectedCourses.length} course{selectedCourses.length > 1 ? 's' : ''} ready for access
+                </p>
+              )}
             </div>
-            <div>
-              <select 
-                className="form-select form-select-sm currency-select" 
-                value={selectedCurrency}
-                onChange={(e) => setSelectedCurrency(e.target.value)}
-                style={{ width: 'auto', minWidth: '80px', fontSize: '0.85rem' }}
+            {selectedCourses.length > 0 && (
+              <button 
+                className="btn btn-outline-danger btn-sm"
+                onClick={clearAllCourses}
+                title="Clear all courses"
               >
-                {currencies.map((currency) => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.symbol} {currency.code}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <i className="bi bi-trash me-1"></i>
+                Clear All
+              </button>
+            )}
           </div>
 
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-success" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-3 text-muted">Loading purchased products...</p>
-            </div>
-          ) : (
-            <div className="container-fluid px-0">
-              {tableContent}
-            </div>
-          )}
+          <div className="container-fluid px-0">
+            {tableContent}
+          </div>
         </div>
       </main>
 
