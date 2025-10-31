@@ -183,18 +183,6 @@ const Invite = ({ embedded = false }) => {
                       </button>
                     </div>
                   </div>
-
-                  {/* Refresh Stats Button */}
-                  <div className="text-end">
-                    <button 
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={fetchStats}
-                      disabled={loadingStats}
-                    >
-                      <i className="bi bi-arrow-clockwise me-1"></i>
-                      Refresh Stats
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
