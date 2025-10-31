@@ -18,6 +18,8 @@ import Estate from './components/Users/Estates.jsx';
 import Product from './components/Users/Products.jsx';
 import Payment from './components/Users/Payment.jsx';
 import Invite from './components/Users/Invite.jsx';
+import AdminLogin from './components/Admin/AdminLogin.jsx';
+import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
 
 
 const Layout = () => {
@@ -26,7 +28,9 @@ const Layout = () => {
     location.pathname === '/login' ||
     location.pathname === '/register' ||
     location.pathname === '/404' ||
-    location.pathname.startsWith('/dashboard');
+    location.pathname === '/AdminLogin' ||
+    location.pathname.startsWith('/dashboard') ||
+    location.pathname.startsWith('/AdminDashboard');
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -101,8 +105,23 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
-          
-
+          {/* Admin Routes*/}
+          <Route
+            path="/AdminLogin"
+            element={
+              <ProtectedRoute>
+                <AdminLogin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/AdminDashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />

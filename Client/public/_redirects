@@ -1,12 +1,43 @@
 # Single Page Application routing
 # Handle all routes by serving index.html
-/*    /index.html   200
 
-# Specific SPA routes
+# Admin Routes - Priority routes (must come before wildcards)
+/admin    /index.html   200
+/admin/*    /index.html   200
+/admin/login    /index.html   200
+/admin/dashboard    /index.html   200
+/admin/users    /index.html   200
+/admin/users/*    /index.html   200
+/admin/courses    /index.html   200
+/admin/courses/*    /index.html   200
+/admin/payments    /index.html   200
+/admin/payments/*    /index.html   200
+/admin/affiliate    /index.html   200
+/admin/affiliate/*    /index.html   200
+/admin/realestate    /index.html   200
+/admin/realestate/*    /index.html   200
+/admin/settings    /index.html   200
+/admin/settings/*    /index.html   200
+/admin/analytics    /index.html   200
+/admin/analytics/*    /index.html   200
+/admin/notifications    /index.html   200
+/admin/notifications/*    /index.html   200
+
+# Legacy Admin Routes (for backward compatibility)
+/AdminLogin    /index.html   200
+/AdminDashboard    /index.html   200
+
+# User Dashboard Routes
 /dashboard    /index.html   200
 /dashboard/*    /index.html   200
 /dashboard/profile    /index.html   200
 /dashboard/program-access    /index.html   200
+/dashboard/estate    /index.html   200
+/dashboard/products    /index.html   200
+/dashboard/payment    /index.html   200
+/dashboard/invite    /index.html   200
+
+# Public Routes
 /login    /index.html   200
 /register    /index.html   200
 /affiliate    /index.html   200
@@ -18,3 +49,6 @@
 
 # API routes (if any) should not be redirected
 /api/*    /api/:splat   200
+
+# Catch-all for SPA routing (must be last)
+/*    /index.html   200

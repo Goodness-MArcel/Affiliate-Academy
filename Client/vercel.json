@@ -1,13 +1,29 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/admin/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/AdminLogin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/AdminDashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api|_next|static|favicon.ico).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
+      "source": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|mp4|webm|ogg))",
       "headers": [
         {
           "key": "Cache-Control",
@@ -21,8 +37,30 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "src/api/**/*.js": {
+      "runtime": "@vercel/node"
+    }
+  }
 }
