@@ -12,8 +12,13 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
-import Program from './components/Users/ProgramAccess.jsx';
 import Profile from './components/Users/Profile.jsx';
+import ProgramAccess from './components/Users/ProgramAccess.jsx';
+import Estate from './components/Users/Estates.jsx';
+import Product from './components/Users/Products.jsx';
+import Payment from './components/Users/Payment.jsx';
+import Invite from './components/Users/Invite.jsx';
+
 
 const Layout = () => {
   const location = useLocation();
@@ -39,7 +44,7 @@ const Layout = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
 
-          {/* ✅ Protected Route */}
+          {/* ✅ Protected Routes */}
           <Route
             path="/dashboard"
             element={
@@ -48,6 +53,56 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/program-access"
+            element={
+              <ProtectedRoute>
+                <ProgramAccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/estate"
+            element={
+              <ProtectedRoute>
+                <Estate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/products"
+            element={
+              <ProtectedRoute>
+                <Product />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/payment"
+            element={
+              <ProtectedRoute>
+                <Payment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/invite"
+            element={
+              <ProtectedRoute>
+                <Invite />
+              </ProtectedRoute>
+            }
+          />
+          
+
 
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />

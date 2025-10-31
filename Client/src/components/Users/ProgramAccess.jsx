@@ -3,7 +3,7 @@ import Sidebar from './UserLayout/sidebar';
 import Smallfooter from "./UserLayout/smallfooter";
 import "./Css/Dashboard.css";
 
-const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false }) => {
+const ProgramAccess = ({ formatCurrency:  embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [purchasedProducts, setPurchasedProducts] = useState([]);
   const [selectedCurrency, setSelectedCurrency] = useState('USD');
@@ -19,16 +19,12 @@ const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false 
     { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
   ];
 
-  // Format currency based on selected currency
-  const formatCurrency = (amount) => {
-    // Use parent's formatCurrency if embedded, otherwise use own
-    if (embedded && parentFormatCurrency) {
-      return parentFormatCurrency(amount);
-    }
-    const currency = currencies.find(c => c.code === selectedCurrency);
-    return `${currency.symbol}${amount.toLocaleString()}`;
-  };
+  const handleAccessProduct = () => {
+        console.log("Watching video");
+        alert("Watching video");
+      }
 
+  
   useEffect(() => {
     const fetchPurchasedProducts = async () => {
       try {
@@ -43,9 +39,13 @@ const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false 
         // });
         // const data = await response.json();
         
-        // Mock data
+        // Mock data - Replace with actual API data
         const mockData = [
-          // { id: 1, productName: 'Product 1', amount: 100, date: '2024-01-15', status: 'completed' },
+          {
+            id: 1,
+            productName: 'Complete Digital Marketing Mastery Course',
+            description: 'This comprehensive course covers all aspects of digital marketing including SEO, social media marketing, email marketing, content marketing, PPC advertising, analytics, and conversion optimization. You will learn how to create effective marketing strategies, build brand awareness, generate leads, and increase sales through various digital channels. The course includes practical exercises, real-world case studies, and access to premium marketing tools. Perfect for beginners and intermediate marketers looking to advance their skills.',
+          },
         ];
 
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -79,12 +79,11 @@ const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false 
           <div className="card-body">
             <div className="table-responsive">
               <table className="table table-hover">
-                <thead>
+                <thead className="table-light">
                   <tr>
-                    <th>Product</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Status</th>
+                    <th scope="col" style={{ width: '50%' }}>Product</th>
+                    <th scope="col" style={{ width: '20%' }}></th>
+                    <th scope="col" style={{ width: '20%' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -92,25 +91,48 @@ const ProgramAccess = ({ formatCurrency: parentFormatCurrency, embedded = false 
                     purchasedProducts.map((product) => (
                       <tr key={product.id}>
                         <td>
-                          <div className="d-flex align-items-center">
-                            <i className="bi bi-box-seam text-success me-2"></i>
-                            <span className="fw-semibold">{product.productName}</span>
+                          <div className="d-flex align-items-start">
+                            <i className="bi bi-box-seam text-success me-3 mt-1 flex-shrink-0"></i>
+                            <div className="flex-grow-1">
+                              <div className="fw-semibold mb-1">{product.productName}</div>
+                              {product.description && (
+                                <div 
+                                  className="product-content text-muted small"
+                                  style={{
+                                    maxHeight: '120px',
+                                    overflowY: 'auto',
+                                    lineHeight: '1.4',
+                                    paddingRight: '8px'
+                                  }}
+                                >
+                                  {product.description}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </td>
-                        <td>{formatCurrency(product.amount)}</td>
-                        <td>{new Date(product.date).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`badge ${product.status === 'completed' ? 'bg-success' : 'bg-warning'}`}>
-                            {product.status}
-                          </span>
+                        <td className="align-middle">
+                        </td>
+                        <td className="align-middle">
+                          <div className="btn-group-vertical gap-1">
+                            <button 
+                              className="btn btn-outline-success btn-sm"
+                              title="Access Product"
+                              onClick={() => handleAccessProduct(product)}
+                            >
+                              <i className="bi bi-play-circle me-1"></i>
+                              Access
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center text-muted py-4">
-                        <i className="bi bi-inbox fs-1 d-block mb-2"></i>
-                        No purchased products yet
+                      <td colSpan="3" className="text-center text-muted py-5">
+                        <i className="bi bi-inbox fs-1 d-block mb-3"></i>
+                        <h5>No purchased products yet</h5>
+                        <p className="mb-0">Your purchased products will appear here once you make a purchase.</p>
                       </td>
                     </tr>
                   )}
