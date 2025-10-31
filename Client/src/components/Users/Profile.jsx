@@ -114,7 +114,6 @@ const Profile = () => {
           cacheControl: '3600',
           upsert: false
         });
-
       if (uploadError) {
         // If avatars bucket doesn't exist, try to create it or use a different approach
         if (uploadError.message.includes('not found')) {
