@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "./UserLayout/sidebar";
 import Smallfooter from "./UserLayout/smallfooter";
 import { useUser } from "../../context/userContext";
@@ -15,14 +15,30 @@ const Profile = () => {
 
   // Initialize form data with user profile data
   const [formData, setFormData] = useState({
-    full_name: profile?.full_name || "",
-    email: profile?.email || user?.email || "",
-    phone_number: profile?.phone_number || "",
-    home_address: profile?.home_address || "",
-    country: profile?.country || "",
-    account_number: profile?.account_number || "",
-    bank_name: profile?.bank_name || "",
+    full_name: "",
+    email: "",
+    phone_number: "",
+    home_address: "",
+    country: "",
+    account_number: "",
+    bank_name: "",
   });
+
+  // Update form data whenever profile data changes
+  useEffect(() => {
+    if (profile || user) {
+      console.log('Profile data loaded:', profile);
+      setFormData({
+        full_name: String(profile?.full_name || ""),
+        email: String(profile?.email || user?.email || ""),
+        phone_number: String(profile?.phone_number || ""),
+        home_address: String(profile?.home_address || ""),
+        country: String(profile?.country || ""),
+        account_number: String(profile?.account_number || ""),
+        bank_name: String(profile?.bank_name || ""),
+      });
+    }
+  }, [profile, user]);
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -40,7 +56,7 @@ const Profile = () => {
     setMessage({ text: "", type: "" });
 
     // Basic validation
-    if (!formData.full_name.trim()) {
+    if (!String(formData.full_name || "").trim()) {
       setMessage({ text: "Full name is required", type: "error" });
       setIsLoading(false);
       return;
@@ -50,25 +66,27 @@ const Profile = () => {
       const { error } = await supabase
         .from('users')
         .update({
-          full_name: formData.full_name.trim(),
-          phone_number: formData.phone_number.trim(),
-          home_address: formData.home_address.trim(),
-          country: formData.country,
-          account_number: formData.account_number.trim(),
-          bank_name: formData.bank_name.trim(),
+          full_name: String(formData.full_name || "").trim(),
+          phone_number: String(formData.phone_number || "").trim(),
+          home_address: String(formData.home_address || "").trim(),
+          country: formData.country || "",
+          account_number: String(formData.account_number || "").trim(),
+          bank_name: String(formData.bank_name || "").trim(),
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
       if (error) throw error;
 
+      console.log('Profile updated successfully in database');
       setMessage({ text: "Profile updated successfully!", type: "success" });
       setIsEditing(false);
       
-      // Refresh the page to get updated profile data
+      // Force a small delay and reload to ensure fresh data from database
       setTimeout(() => {
+        console.log('Reloading page to refresh profile data');
         window.location.reload();
-      }, 1500);
+      }, 800);
     } catch (error) {
       console.error('Profile update error:', error);
       setMessage({ text: error.message || "Failed to update profile", type: "error" });
@@ -141,10 +159,10 @@ const Profile = () => {
 
       setMessage({ text: "Avatar updated successfully!", type: "success" });
       
-      // Refresh to show new avatar
+      // Refresh to show new avatar and updated profile data
       setTimeout(() => {
         window.location.reload();
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error('Avatar upload error:', error);
       setMessage({ 
@@ -205,14 +223,16 @@ const Profile = () => {
                           className="btn btn-outline-secondary btn-sm"
                           onClick={() => {
                             setIsEditing(false);
+                            setMessage({ text: "", type: "" });
+                            // Reset form data to current profile values from database
                             setFormData({
-                              full_name: profile?.full_name || "",
-                              email: profile?.email || user?.email || "",
-                              phone_number: profile?.phone_number || "",
-                              home_address: profile?.home_address || "",
-                              country: profile?.country || "",
-                              account_number: profile?.account_number || "",
-                              bank_name: profile?.bank_name || "",
+                              full_name: String(profile?.full_name || ""),
+                              email: String(profile?.email || user?.email || ""),
+                              phone_number: String(profile?.phone_number || ""),
+                              home_address: String(profile?.home_address || ""),
+                              country: String(profile?.country || ""),
+                              account_number: String(profile?.account_number || ""),
+                              bank_name: String(profile?.bank_name || ""),
                             });
                           }}
                           disabled={isLoading}
