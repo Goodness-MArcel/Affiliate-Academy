@@ -89,8 +89,10 @@
 }
 
 .nav-icon-btn:hover {
-  background: #e9ecef !important;
-  color: #198754 !important;
+  background: #198754 !important;
+  color: #ffffff !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3) !important;
 }
 
 .nav-icon-btn i {
@@ -235,18 +237,29 @@
 }
 
 .menu-item:hover {
-  background: #f8f9fa !important;
-  color: #198754 !important;
+  background: linear-gradient(135deg, #198754, #20c997) !important;
+  color: #ffffff !important;
+  transform: translateX(8px) !important;
+  box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3) !important;
+  border-radius: 10px !important;
 }
 
 .menu-item.active {
   background: linear-gradient(135deg, #198754, #20c997) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3) !important;
+  box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4) !important;
+  transform: translateX(10px) !important;
+  border-radius: 10px !important;
 }
 
 .menu-item i {
   color: inherit !important;
+  transition: all 0.3s ease !important;
+}
+
+.menu-item:hover i {
+  transform: scale(1.1) !important;
+  color: #ffffff !important;
 }
 
 .menu-item i {
