@@ -32,13 +32,19 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #495057;
+  color: #198754 !important;
 }
 
 .sidebar-toggle:hover {
-  background: #198754;
-  color: #ffffff;
+  background: #198754 !important;
+  color: #ffffff !important;
   transform: scale(1.05);
+}
+
+.sidebar-toggle:focus {
+  background: #198754 !important;
+  color: #ffffff !important;
+  outline: none;
 }
 
 .sidebar-toggle i {
@@ -52,10 +58,12 @@
 }
 
 .brand-text {
-  background: linear-gradient(135deg, #198754, #20c997);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: linear-gradient(135deg, #198754, #20c997) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  color: #198754 !important;
+  font-weight: 800 !important;
 }
 
 .navbar-right {
@@ -81,8 +89,8 @@
 }
 
 .nav-icon-btn:hover {
-  background: #e9ecef;
-  color: #198754;
+  background: #e9ecef !important;
+  color: #198754 !important;
 }
 
 .nav-icon-btn i {
@@ -227,14 +235,18 @@
 }
 
 .menu-item:hover {
-  background: #f8f9fa;
-  color: #198754;
+  background: #f8f9fa !important;
+  color: #198754 !important;
 }
 
 .menu-item.active {
-  background: linear-gradient(135deg, #198754, #20c997);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+  background: linear-gradient(135deg, #198754, #20c997) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3) !important;
+}
+
+.menu-item i {
+  color: inherit !important;
 }
 
 .menu-item i {

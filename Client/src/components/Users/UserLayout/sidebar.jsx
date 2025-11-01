@@ -52,7 +52,7 @@ const Sidebar = () => {
             <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-list'}`}></i>
           </button>
           <div className="navbar-brand">
-            <span className="brand-text">Affiliate Academy</span>
+            <span className="brand-text">AffiliateAcademy</span>
           </div>
         </div>
 
