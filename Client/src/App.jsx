@@ -18,6 +18,8 @@ import Estate from './components/Users/Estates.jsx';
 import Product from './components/Users/Products.jsx';
 import Payment from './components/Users/Payment.jsx';
 import Invite from './components/Users/Invite.jsx';
+import ForgotPassword from './components/pages/ForgotPassword.jsx';
+import ResetPassword from './components/pages/Resetpassword.jsx';
 import AdminLogin from './components/Admin/AdminLogin.jsx';
 import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
 
@@ -45,6 +47,8 @@ const Layout = () => {
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
 
