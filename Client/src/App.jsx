@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AdminProvider } from './context/AdminContext.jsx';
+import { AdminProtectedRoute } from './components/Admin/AdminProtectedRoute.jsx';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
@@ -18,6 +20,8 @@ import Estate from './components/Users/Estates.jsx';
 import Product from './components/Users/Products.jsx';
 import Payment from './components/Users/Payment.jsx';
 import Invite from './components/Users/Invite.jsx';
+import ForgotPassword from './components/pages/ForgotPassword.jsx';
+import ResetPassword from './components/pages/Resetpassword.jsx';
 import AdminLogin from './components/Admin/AdminLogin.jsx';
 import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
 
@@ -47,6 +51,8 @@ const Layout = () => {
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
 
@@ -107,23 +113,22 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
+          {/* ========================================================== */}
           {/* Admin Routes*/}
           <Route
             path="/AdminLogin"
             element={<AdminLogin />}
           />
-          <Route
-            path="/AdminRegister"
-            element={<Adminregister />}
-          />
-
+            
           <Route
             path="/AdminDashboard"
-            element={<AdminDashboard />}
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
           />
-            
-
-
+          {/* ========================================================== */}
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
@@ -135,9 +140,11 @@ const Layout = () => {
 };
 
 const App = () => (
-  <Router>
-    <Layout />
-  </Router>
+  <AdminProvider>
+    <Router>
+      <Layout />
+    </Router>
+  </AdminProvider>
 );
 
 export default App;

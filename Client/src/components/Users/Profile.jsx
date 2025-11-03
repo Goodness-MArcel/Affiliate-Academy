@@ -7,6 +7,7 @@ import { supabase } from "../../../supabase";
 import "./Css/Dashboard.css";
 
 const Profile = () => {
+
   const { user, profile } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +28,7 @@ const Profile = () => {
   // Update form data whenever profile data changes
   useEffect(() => {
     if (profile || user) {
-      console.log('Profile data loaded:', profile);
+      console.log("Profile data loaded:", profile);
       setFormData({
         full_name: String(profile?.full_name || ""),
         email: String(profile?.email || user?.email || ""),
@@ -43,9 +44,9 @@ const Profile = () => {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -55,7 +56,6 @@ const Profile = () => {
     setIsLoading(true);
     setMessage({ text: "", type: "" });
 
-    // Basic validation
     if (!String(formData.full_name || "").trim()) {
       setMessage({ text: "Full name is required", type: "error" });
       setIsLoading(false);
@@ -64,7 +64,7 @@ const Profile = () => {
 
     try {
       const { error } = await supabase
-        .from('users')
+        .from("users")
         .update({
           full_name: String(formData.full_name || "").trim(),
           phone_number: String(formData.phone_number || "").trim(),
@@ -74,126 +74,129 @@ const Profile = () => {
           bank_name: String(formData.bank_name || "").trim(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) throw error;
 
-      console.log('Profile updated successfully in database');
+      console.log("Profile updated successfully in database");
       setMessage({ text: "Profile updated successfully!", type: "success" });
       setIsEditing(false);
-      
-      // Force a small delay and reload to ensure fresh data from database
+
+      // Refresh profile after short delay
       setTimeout(() => {
-        console.log('Reloading page to refresh profile data');
         window.location.reload();
       }, 800);
     } catch (error) {
-      console.error('Profile update error:', error);
-      setMessage({ text: error.message || "Failed to update profile", type: "error" });
+      console.error("Profile update error:", error);
+      setMessage({
+        text: error.message || "Failed to update profile",
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle avatar upload
+  // ✅ Handle avatar upload
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type and size
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      setMessage({ text: "Please select a valid image file (JPEG, PNG, or WebP)", type: "error" });
+      setMessage({
+        text: "Please select a valid image file (JPEG, PNG, or WebP)",
+        type: "error",
+      });
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setMessage({ text: "Image size must be less than 5MB", type: "error" });
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({
+        text: "Image size must be less than 5MB",
+        type: "error",
+      });
       return;
     }
 
     setIsLoading(true);
-    setMessage({ text: "Uploading avatar...", type: "success" });
+    setMessage({ text: "Uploading avatar...", type: "info" });
 
     try {
-      // Delete existing avatar if it exists
-      if (profile?.avatar_url && profile.avatar_url.includes('supabase')) {
-        const oldFileName = profile.avatar_url.split('/').pop();
-        await supabase.storage.from('avatars').remove([oldFileName]);
+      // Ensure user is authenticated
+      const { data: authData } = await supabase.auth.getUser();
+      const currentUser = authData?.user;
+      if (!currentUser) throw new Error("You must be logged in to upload.");
+
+      // Each user stores their avatar in a folder named after their ID
+      const fileExt = file.name.split(".").pop();
+      const fileName = `avatar-${Date.now()}.${fileExt}`;
+      const filePath = `${currentUser.id}/${fileName}`; // ✅ matches RLS policy
+
+      // Delete old avatar if exists
+      if (profile?.avatar_url && profile.avatar_url.includes("supabase")) {
+        const oldFilePath = profile.avatar_url.split("/avatars/").pop();
+        await supabase.storage.from("avatars").remove([oldFilePath]);
       }
 
       // Upload new avatar
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+        .from("avatars")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: true,
         });
 
-      if (uploadError) {
-        // If avatars bucket doesn't exist, try to create it or use a different approach
-        if (uploadError.message.includes('not found')) {
-          throw new Error('Avatar storage not configured. ');
-        }
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
 
-      // Update user profile with new avatar URL
+      const publicUrl = urlData.publicUrl;
+
+      // Update user's avatar URL in your "users" table
       const { error: updateError } = await supabase
-        .from('users')
-        .update({ 
+        .from("users")
+        .update({
           avatar_url: publicUrl,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", currentUser.id);
 
       if (updateError) throw updateError;
 
       setMessage({ text: "Avatar updated successfully!", type: "success" });
-      
-      // Refresh to show new avatar and updated profile data
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
-      console.error('Avatar upload error:', error);
-      setMessage({ 
-        text: error.message || "Failed to upload avatar. Please try again.", 
-        type: "error" 
+      console.error("Avatar upload error:", error);
+      setMessage({
+        text: error.message || "Failed to upload avatar. Please try again.",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
-      // Clear the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  // Copy referral link
+  // ✅ Get avatar URL with fallback
+  const getAvatarUrl = () => {
+    if (profile?.avatar_url) return profile.avatar_url;
+    if (user?.user_metadata?.avatar_url) return user.user_metadata.avatar_url;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      profile?.full_name || user?.email || "User"
+    )}&background=198754&color=fff&size=120`;
+  };
+
+  // ✅ Copy referral link
   const copyReferralLink = () => {
     const referralLink = `${window.location.origin}/register?ref=${user?.id}`;
     navigator.clipboard.writeText(referralLink).then(() => {
       setMessage({ text: "Referral link copied!", type: "success" });
       setTimeout(() => setMessage({ text: "", type: "" }), 3000);
     });
-  };
-
-  // Get avatar URL
-  const getAvatarUrl = () => {
-    if (profile?.avatar_url) return profile.avatar_url;
-    if (user?.user_metadata?.avatar_url) return user.user_metadata.avatar_url;
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      profile?.full_name || user?.email || 'User'
-    )}&background=198754&color=fff&size=120`;
   };
 
   return (
@@ -210,7 +213,7 @@ const Profile = () => {
                   <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h4 className="mb-0 fw-bold">My Profile</h4>
                     {!isEditing ? (
-                      <button 
+                      <button
                         className="btn btn-success btn-sm"
                         onClick={() => setIsEditing(true)}
                       >
@@ -219,7 +222,7 @@ const Profile = () => {
                       </button>
                     ) : (
                       <div className="d-flex gap-2 flex-wrap">
-                        <button 
+                        <button
                           className="btn btn-outline-secondary btn-sm"
                           onClick={() => {
                             setIsEditing(false);
@@ -239,7 +242,7 @@ const Profile = () => {
                         >
                           Cancel
                         </button>
-                        <button 
+                        <button
                           className="btn btn-success btn-sm"
                           onClick={handleSaveProfile}
                           disabled={isLoading}
@@ -285,7 +288,7 @@ const Profile = () => {
                             height="120"
                             style={{ objectFit: 'cover' }}
                           />
-                          <button 
+                          <button
                             className="btn btn-success btn-sm position-absolute bottom-0 end-0 rounded-circle p-2"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isLoading}
@@ -302,7 +305,7 @@ const Profile = () => {
                           onChange={handleAvatarUpload}
                         />
                         <div className="mt-3">
-                          <button 
+                          <button
                             className="btn btn-outline-success btn-sm w-100"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isLoading}
@@ -505,8 +508,8 @@ const Profile = () => {
                                   value={`${window.location.origin}/register?ref=${user?.id}`}
                                   readOnly
                                 />
-                                <button 
-                                  className="btn btn-success" 
+                                <button
+                                  className="btn btn-success"
                                   type="button"
                                   onClick={copyReferralLink}
                                 >
