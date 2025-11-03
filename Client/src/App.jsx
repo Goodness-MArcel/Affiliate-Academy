@@ -22,6 +22,7 @@ import AdminLogin from './components/Admin/AdminLogin.jsx';
 import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
 
 
+
 const Layout = () => {
   const location = useLocation();
   const hideNavAndFooter =
@@ -29,6 +30,7 @@ const Layout = () => {
     location.pathname === '/register' ||
     location.pathname === '/404' ||
     location.pathname === '/AdminLogin' ||
+    location.pathname === '/AdminRegister' ||
     location.pathname.startsWith('/dashboard') ||
     location.pathname.startsWith('/AdminDashboard');
 
@@ -108,20 +110,19 @@ const Layout = () => {
           {/* Admin Routes*/}
           <Route
             path="/AdminLogin"
-            element={
-              <ProtectedRoute>
-                <AdminLogin />
-              </ProtectedRoute>
-            }
+            element={<AdminLogin />}
           />
           <Route
-            path="/AdminDashboard"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
+            path="/AdminRegister"
+            element={<Adminregister />}
           />
+
+          <Route
+            path="/AdminDashboard"
+            element={<AdminDashboard />}
+          />
+            
+
 
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />

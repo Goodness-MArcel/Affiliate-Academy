@@ -1,0 +1,336 @@
+/* Admin Dashboard Styles */
+
+.admin-layout {
+  position: relative;
+  min-height: 100vh;
+}
+
+.admin-responsive-content {
+  padding: 1rem;
+  transition: margin-left 0.3s ease;
+}
+
+/* Desktop Styles */
+@media (min-width: 992px) {
+  .admin-responsive-content {
+    margin-left: 280px !important;
+  }
+  
+  .admin-responsive-content.sidebar-collapsed {
+    margin-left: 70px !important;
+  }
+}
+
+/* Tablet and Mobile Styles */
+@media (max-width: 991.98px) {
+  .admin-responsive-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0.75rem;
+  }
+  
+  .admin-sidebar-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .admin-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .admin-responsive-content {
+    padding: 0.5rem;
+  }
+  
+  .admin-layout .card {
+    border-radius: 8px;
+  }
+  
+  .admin-layout .card-body {
+    padding: 1rem;
+  }
+
+  .admin-layout .d-flex.justify-content-between.align-items-center {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .admin-layout .d-flex.justify-content-between.align-items-center > div:first-child {
+    width: 100%;
+  }
+
+  .admin-layout .btn.btn-outline-success {
+    align-self: flex-end;
+  }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 576px) {
+  .admin-responsive-content {
+    padding: 0.25rem;
+  }
+  
+  .admin-layout .row.g-3 {
+    gap: 0.75rem !important;
+  }
+  
+  .admin-layout .card-body {
+    padding: 0.75rem;
+  }
+  
+  .admin-layout .table-responsive {
+    font-size: 0.875rem;
+  }
+
+  .admin-layout .h3 {
+    font-size: 1.5rem;
+  }
+
+  .admin-layout .card-title.mb-0 h5 {
+    font-size: 1.1rem;
+  }
+
+  /* Analytics Cards Mobile Optimization */
+  .admin-layout .col-xl-3.col-lg-6.col-md-6.col-sm-6.col-12 {
+    min-width: 100%;
+    margin-bottom: 0.75rem;
+  }
+
+  .admin-layout .bg-opacity-10.rounded-3.p-3 {
+    padding: 0.75rem !important;
+  }
+
+  .admin-layout .fs-4 {
+    font-size: 1.25rem !important;
+  }
+
+  .admin-layout .card .h3 {
+    font-size: 1.5rem;
+  }
+
+  /* Table Mobile Optimization */
+  .admin-layout .table th,
+  .admin-layout .table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .admin-layout .table th:nth-child(3),
+  .admin-layout .table td:nth-child(3),
+  .admin-layout .table th:nth-child(4),
+  .admin-layout .table td:nth-child(4) {
+    display: none;
+  }
+}
+
+/* Main Content Area */
+.admin-main-content {
+  margin-top: 70px;
+  min-height: calc(100vh - 70px);
+}
+
+/* Loading Spinner Styles */
+.admin-layout .spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.admin-layout .spinner-content {
+  text-align: center;
+}
+
+.admin-layout .spinner-border-custom {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3em;
+}
+
+/* Alert Styles */
+.admin-layout .alert {
+  border: none;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.admin-layout .alert.alert-danger {
+  background: linear-gradient(135deg, #fee, #fecaca);
+  color: #991b1b;
+}
+
+.admin-layout .alert .btn-close {
+  filter: brightness(0.8);
+}
+
+/* Card Enhancements */
+.admin-layout .card {
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.admin-layout .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.admin-layout .card-header {
+  background: transparent;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.25rem;
+}
+
+/* Analytics Card Improvements */
+.admin-layout .analytics-card {
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-layout .analytics-icon {
+  transition: transform 0.3s ease;
+}
+
+.admin-layout .card:hover .analytics-icon {
+  transform: scale(1.1);
+}
+
+/* Badge Styles */
+.admin-layout .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+}
+
+.admin-layout .badge.bg-success {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+
+.admin-layout .badge.bg-secondary {
+  background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+}
+
+.admin-layout .badge.bg-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+/* Table Enhancements */
+.admin-layout .table {
+  margin-bottom: 0;
+}
+
+.admin-layout .table thead th {
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-layout .table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.admin-layout .table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.001);
+}
+
+.admin-layout .table td {
+  vertical-align: middle;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Refresh Button */
+.admin-layout .btn-outline-success {
+  border: 2px solid #10b981;
+  color: #10b981;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.admin-layout .btn-outline-success:hover {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* User Avatar in Table */
+.admin-layout .user-avatar-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* Animation Classes */
+.admin-layout .fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-layout .slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark Mode Support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .admin-layout .card {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .admin-layout .table {
+    color: #f9fafb;
+  }
+  
+  .admin-layout .table thead th {
+    color: #d1d5db;
+    border-bottom-color: #374151;
+  }
+  
+  .admin-layout .table tbody tr:hover {
+    background-color: #374151;
+  }
+}
