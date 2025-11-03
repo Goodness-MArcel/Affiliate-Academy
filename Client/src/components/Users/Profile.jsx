@@ -280,7 +280,7 @@ const Profile = () => {
                     <div className="col-12 col-lg-4">
                       <div className="text-center mb-4 pb-4 border-bottom border-lg-0 border-lg-end pe-lg-4">
                         <div className="position-relative d-inline-block">
-                          <img
+                          <i
                             src={getAvatarUrl()}
                             alt="User Avatar"
                             className="rounded-circle shadow-sm"
