@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import './AdminLogin.css'
 import { useNavigate } from 'react-router-dom';
+import { useAdmin } from '../../context/AdminContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -21,9 +22,11 @@ const AdminLogin = () => {
     if (error) setError('');
   };
 
+  // Inside AdminLogin.jsx → handleSubmit
+  const { login } = useAdmin(); // ← Add this
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
       return;
@@ -33,14 +36,7 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      // Add your admin authentication logic here
-      console.log('Admin login attempt:', formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Handle successful login here
-      alert('Login successful!');
+      await login(formData.email, formData.password); // ← Use context login
       navigate('/AdminDashboard');
     } catch (err) {
       setError(err.message || 'Invalid credentials. Please try again.');
@@ -64,7 +60,7 @@ const AdminLogin = () => {
           {/* Login Form */}
           <div className="admin-form-section">
             <h2 className="admin-login-title">Administrator Login</h2>
-            
+
             {error && (
               <div className="admin-alert admin-alert-error">
                 <i className="fas fa-exclamation-circle"></i>

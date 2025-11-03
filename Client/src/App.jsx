@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AdminProvider } from './context/AdminContext.jsx';
+import { AdminProtectedRoute } from './components/Admin/AdminProtectedRoute.jsx';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
@@ -109,24 +111,21 @@ const Layout = () => {
               </ProtectedRoute>
             }
           />
+          {/* ========================================================== */}
           {/* Admin Routes*/}
           <Route
             path="/AdminLogin"
-            element={
-              <ProtectedRoute>
-                <AdminLogin />
-              </ProtectedRoute>
-            }
-          />
+            element={<AdminLogin />}/>
+            
           <Route
             path="/AdminDashboard"
             element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <AdminDashboard />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }
           />
-
+          {/* ========================================================== */}
           {/* 404 Not Found */}
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
