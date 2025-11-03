@@ -15,5 +15,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey , {
     persistSession: true,      // ensures the user stays logged in on reload
     autoRefreshToken: true,    // auto-refresh access tokens before they expire
     detectSessionInUrl: true,  // handles OAuth redirects if you use them later
+    storageKey: 'sb-affiliate-auth' //
   },
 });
