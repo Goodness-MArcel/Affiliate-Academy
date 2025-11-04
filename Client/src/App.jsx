@@ -25,6 +25,12 @@ import Invite from './components/Users/Invite.jsx';
 
 import AdminLogin from './components/Admin/AdminLogin.jsx';
 import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
+import ManageUsers from './components/Admin/pages/Manageusers.jsx';
+import CourseManagement from './components/Admin/pages/CourseManagement.jsx';
+import WithdrawRequest from './components/Admin/pages/Withdrawrequest.jsx';
+import ReferalManagement from './components/Admin/pages/ReferalManagement.jsx';
+import AddEstate from './components/Admin/pages/AddEstate.jsx';
+import SystemConfig from './components/Admin/pages/SystemConfig.jsx';
 
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { useUser } from './context/userContext'; // ✅ to access profile.role
@@ -43,7 +49,7 @@ const Layout = () => {
     location.pathname === '/404' ||
     location.pathname === '/AdminLogin' ||
     location.pathname.startsWith('/dashboard') ||
-    location.pathname.startsWith('/admin/dashboard');
+    location.pathname.startsWith('/admin/');
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -88,6 +94,63 @@ const Layout = () => {
                 : <Navigate to="/404" replace />
             }
           />
+          <Route
+            path="/admin/users/all"
+            element={
+              profile?.role === 'admin'
+                ? <ManageUsers />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/courses/upload"
+            element={
+              profile?.role === 'admin'
+                ? <CourseManagement />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/courses/all"
+            element={
+              profile?.role === 'admin'
+                ? <CourseManagement />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/payments"
+            element={
+              profile?.role === 'admin'
+                ? <WithdrawRequest />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/affiliate"
+            element={
+              profile?.role === 'admin'
+                ? <ReferalManagement />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/realestate"
+            element={
+              profile?.role === 'admin'
+                ? <AddEstate />
+                : <Navigate to="/404" replace />
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              profile?.role === 'admin'
+                ? <SystemConfig />
+                : <Navigate to="/404" replace />
+            }
+          />
+          
 
           {/* 404 Fallback */}
           <Route path="/404" element={<NotFound />} />
