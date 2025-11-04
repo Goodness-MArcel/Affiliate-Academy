@@ -1,14 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/AdminLogin",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/AdminDashboard",
-      "destination": "/index.html"
-    },
-    {
       "source": "/admin/:path*",
       "destination": "/index.html"
     },
@@ -17,23 +9,15 @@
       "destination": "/index.html"
     },
     {
-      "source": "/login",
+      "source": "/AdminLogin",
       "destination": "/index.html"
     },
     {
-      "source": "/register",
+      "source": "/AdminDashboard",
       "destination": "/index.html"
     },
     {
-      "source": "/forgot-password",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/reset-password",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/((?!api|_next|static|favicon.ico|assets|.*\\.).*)",
+      "source": "/((?!api|_next|static|favicon.ico).*)",
       "destination": "/index.html"
     }
   ],

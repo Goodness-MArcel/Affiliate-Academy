@@ -1,8 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import React from 'react';
-import { AdminProvider } from './context/AdminContext.jsx';
-import { AdminProtectedRoute } from './components/Admin/AdminProtectedRoute.jsx';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
@@ -30,7 +28,7 @@ import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
 
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
 import { useUser } from './context/userContext'; // ✅ to access profile.role
-
+// import { useUser } from './context/userContext';
 // ============================================================
 // Layout Component
 // ============================================================
@@ -44,12 +42,8 @@ const Layout = () => {
     location.pathname === '/register' ||
     location.pathname === '/404' ||
     location.pathname === '/AdminLogin' ||
-    location.pathname === '/AdminRegister' ||
-    location.pathname === '/forgot-password' ||
-    location.pathname === '/reset-password' ||
     location.pathname.startsWith('/dashboard') ||
-    location.pathname.startsWith('/AdminDashboard') ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/admin/dashboard');
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -85,24 +79,13 @@ const Layout = () => {
               ✅ Admin Routes
           ========================== */}
           <Route path="/AdminLogin" element={<AdminLogin />} />
-          
-          {/* Role-based admin dashboard route */}
+
           <Route
             path="/admin/dashboard"
             element={
               profile?.role === 'admin'
                 ? <AdminDashboard />
                 : <Navigate to="/404" replace />
-            }
-          />
-          
-          {/* Legacy admin dashboard route with protection */}
-          <Route
-            path="/AdminDashboard"
-            element={
-              <AdminProtectedRoute>
-                <AdminDashboard />
-              </AdminProtectedRoute>
             }
           />
 
