@@ -121,11 +121,9 @@ const Layout = () => {
 // Main App
 // ============================================================
 const App = () => (
-  <AdminProvider>
-    <Router>
-      <Layout />
-    </Router>
-  </AdminProvider>
+  <Router>
+    <Layout />
+  </Router>
 );
 
 export default App;
