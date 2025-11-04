@@ -206,12 +206,6 @@ const Manageusers = () => {
                 />
               </div>
             </div>
-            <div className="col-lg-6 text-lg-end">
-              <button className="btn btn-primary">
-                <i className="bi bi-envelope me-2"></i>
-                Send Message
-              </button>
-            </div>
           </div>
 
           {/* Users Table */}
@@ -243,10 +237,7 @@ const Manageusers = () => {
                   <table className="table table-hover mb-0">
                     <thead style={{ backgroundColor: '#f8f9fa' }}>
                       <tr>
-                        <th className="border-0 py-3 ps-4 d-none d-md-table-cell">
-                          <input type="checkbox" className="form-check-input" />
-                        </th>
-                        <th className="border-0 py-3">
+                        <th className="border-0 py-3 ps-4">
                           <span className="d-none d-md-inline">Client Name</span>
                           <span className="d-md-none">Name</span>
                         </th>
@@ -270,10 +261,7 @@ const Manageusers = () => {
                       ) : (
                         users.map((user) => (
                           <tr key={user.id}>
-                            <td className="ps-4 d-none d-md-table-cell">
-                              <input type="checkbox" className="form-check-input" />
-                            </td>
-                            <td>
+                            <td className="ps-4">
                               <div className="d-flex align-items-center">
                                 {user.avatar_url ? (
                                   <img 
