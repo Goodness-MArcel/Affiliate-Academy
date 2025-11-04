@@ -25,6 +25,7 @@ import Invite from './components/Users/Invite.jsx';
 
 import AdminLogin from './components/Admin/AdminLogin.jsx';
 import AdminDashboard from './components/Admin/pages/AdminDashboard.jsx';
+import AdminDashboardPage from './components/Admin/pages/Dashboard.jsx';
 import ManageUsers from './components/Admin/pages/Manageusers.jsx';
 import CourseManagement from './components/Admin/pages/CourseManagement.jsx';
 import WithdrawRequest from './components/Admin/pages/Withdrawrequest.jsx';
@@ -94,6 +95,14 @@ const Layout = () => {
                 : <Navigate to="/404" replace />
             }
           />
+          <Route
+          path="/admin/dashboard'"
+          element={
+              profile?.role === 'admin'
+                ? <AdminDashboardPage />
+                : <Navigate to="/404" replace />
+            } 
+           />
           <Route
             path="/admin/users/all"
             element={

@@ -1,6 +1,11 @@
 // Admin Menu Configuration Data
 export const ADMIN_MENU_ITEMS = [
     {
+      title: 'Dashboard', 
+      icon: 'fas fa-tachometer-alt', 
+      path: '/admin/dashboard',
+      description: 'Admin Dashboard Overview' },
+    { 
       title: 'Manage Users',
       icon: 'fas fa-users',
       path: '/admin/users',
