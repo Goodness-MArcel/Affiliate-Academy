@@ -1,6 +1,6 @@
 // src/context/AdminContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../../supabase';;
+import { supabase } from '../../supabase';
 
 const AdminContext = createContext(undefined);
 
@@ -8,7 +8,6 @@ export const AdminProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if current user is admin
   const checkAdminStatus = async (user) => {
     if (!user) {
       setAdmin(null);
@@ -18,14 +17,18 @@ export const AdminProvider = ({ children }) => {
 
     try {
       const { data, error } = await supabase
-        .from('admins') // ← Your admin users table
-        .select('id, email, role')
+        .from('users')
+        .select('id, email, full_name, role')
         .eq('id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
-      setAdmin(data ? { ...data, user } : null);
+      if (data?.role === 'admin') {
+        setAdmin({ ...data, user });
+      } else {
+        setAdmin(null);
+      }
     } catch (err) {
       console.error('Admin check failed:', err);
       setAdmin(null);
@@ -34,9 +37,7 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
-  // Listen to auth changes
   useEffect(() => {
-    // Initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       checkAdminStatus(session?.user ?? null);
     });
@@ -49,26 +50,23 @@ export const AdminProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // Verify this user is in `admins` table
-    const { data: adminData, error: adminError } = await supabase
-      .from('admins')
-      .select('id, email, role')
+    // Check role in users table
+    const { data: userData, error: roleError } = await supabase
+      .from('users')
+      .select('id, email, full_name, role')
       .eq('id', data.user.id)
       .single();
 
-    if (adminError || !adminData) {
+    if (roleError) throw roleError;
+    if (userData.role !== 'admin') {
       await supabase.auth.signOut();
-      throw new Error('Access denied. Admin only.');
+      throw new Error('Access denied. Admin role required.');
     }
 
-    setAdmin({ ...adminData, user: data.user });
+    setAdmin({ ...userData, user: data.user });
     return data;
   };
 
@@ -84,9 +82,10 @@ export const AdminProvider = ({ children }) => {
   );
 };
 
-// Hook
 export const useAdmin = () => {
   const context = useContext(AdminContext);
   if (!context) throw new Error('useAdmin must be used within AdminProvider');
   return context;
 };
+
+

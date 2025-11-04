@@ -35,11 +35,13 @@ const AdminLogin = () => {
     setLoading(true);
     setError('');
 
+    const { login } = useAdmin();
+
     try {
-      await login(formData.email, formData.password); // ← Use context login
-      navigate('/AdminDashboard');
+      await login(formData.email, formData.password);
+      navigate('/AdminDashboard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Invalid credentials. Please try again.');
+      setError(err.message || 'Invalid credentials or not an admin.');
     } finally {
       setLoading(false);
     }
