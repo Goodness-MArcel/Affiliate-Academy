@@ -56,12 +56,12 @@ const Manageusers = () => {
 
       let query = supabase
         .from('users')
-        .select('*, user_balances(*)', { count: 'exact' })
+        .select('*')
         .order('created_at', { ascending: false })
         .range(start, end);
 
       if (searchQuery) {
-        query = query.or(`full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+        query = query.or(`full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,phone_number.ilike.%${searchQuery}%`);
       }
 
       const { data, error, count } = await query;
@@ -232,23 +232,19 @@ const Manageusers = () => {
                   WebkitOverflowScrolling: 'touch',
                   backgroundColor: 'white',
                   borderRadius: '8px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#cbd5e0 #f7fafc'
                 }}>
-                  <table className="table table-hover mb-0">
+                  <table className="table table-hover mb-0" style={{ minWidth: '800px' }}>
                     <thead style={{ backgroundColor: '#f8f9fa' }}>
                       <tr>
-                        <th className="border-0 py-3 ps-4">
-                          <span className="d-none d-md-inline">Client Name</span>
-                          <span className="d-md-none">Name</span>
-                        </th>
-                        <th className="border-0 py-3">Email</th>
-                        <th className="border-0 py-3">
-                          <span className="d-none d-md-inline">Phone</span>
-                          <span className="d-md-none">Tel</span>
-                        </th>
-                        <th className="border-0 py-3 d-none d-md-table-cell">Status</th>
-                        <th className="border-0 py-3 d-none d-md-table-cell">Date Registered</th>
-                        <th className="border-0 py-3">Action</th>
+                        <th className="border-0 py-3 ps-4" style={{ minWidth: '200px' }}>Name</th>
+                        <th className="border-0 py-3" style={{ minWidth: '220px' }}>Email</th>
+                        <th className="border-0 py-3" style={{ minWidth: '150px' }}>Phone Number</th>
+                        <th className="border-0 py-3" style={{ minWidth: '150px' }}>Created Date</th>
+                        <th className="border-0 py-3" style={{ minWidth: '100px' }}>Status</th>
+                        <th className="border-0 py-3" style={{ minWidth: '100px' }}>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -305,12 +301,12 @@ const Manageusers = () => {
                             </td>
                             <td className="text-primary">{user.email || 'N/A'}</td>
                             <td className="text-muted">{user.phone_number || 'N/A'}</td>
-                            <td className="d-none d-md-table-cell">
+                            <td className="text-muted">{formatDate(user.created_at)}</td>
+                            <td>
                               <span className={`badge ${user.is_blocked ? 'bg-danger' : 'bg-success'}`}>
                                 {user.is_blocked ? 'Blocked' : 'Active'}
                               </span>
                             </td>
-                            <td className="text-muted d-none d-md-table-cell">{formatDate(user.created_at)}</td>
                             <td>
                               <div className="dropdown" style={{ position: 'static' }}>
                                 <button

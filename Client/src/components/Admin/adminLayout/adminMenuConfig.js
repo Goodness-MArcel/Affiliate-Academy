@@ -16,7 +16,6 @@ export const ADMIN_MENU_ITEMS = [
       description: 'Upload & Manage Courses',
       submenu: [
         { title: 'Upload Course', path: '/admin/courses/upload' },
-        { title: 'All Courses', path: '/admin/courses/all' },
       ]
     },
     {

@@ -110,14 +110,7 @@ const Layout = () => {
                 : <Navigate to="/404" replace />
             }
           />
-          <Route
-            path="/admin/courses/all"
-            element={
-              profile?.role === 'admin'
-                ? <CourseManagement />
-                : <Navigate to="/404" replace />
-            }
-          />
+         
           <Route
             path="/admin/payments"
             element={
