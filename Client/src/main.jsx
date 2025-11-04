@@ -9,10 +9,12 @@ import { AdminProvider } from './context/AdminContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+     {/* <AdminProvider> */}
     <UserProvider>
-      <AdminProvider>
+     
         <App />
-      </AdminProvider>
+      
     </UserProvider>
+    {/* </AdminProvider> */}
   </StrictMode>,
 )

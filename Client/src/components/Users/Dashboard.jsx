@@ -29,16 +29,16 @@ const Dashboard = () => {
       console.log('No currency found in profile, using USD as default');
       return { code: 'USD', symbol: '$' };
     }
-    
+
     try {
       // Extract currency code from stored format like "USD ($)" or "NGN (₦)"
       const currencyMatch = profile.currency.match(/^([A-Z]{3})/);
       const currencyCode = currencyMatch ? currencyMatch[1] : 'USD';
-      
+
       // Extract symbol from stored format
       const symbolMatch = profile.currency.match(/\(([^)]+)\)/);
       const currencySymbol = symbolMatch ? symbolMatch[1] : '$';
-      
+
       console.log(`Using currency: ${currencyCode} (${currencySymbol}) from profile: ${profile.currency}`);
       return { code: currencyCode, symbol: currencySymbol };
     } catch (error) {
@@ -59,7 +59,7 @@ const Dashboard = () => {
 
       try {
         setLoading(true);
-        
+
         // Fetch user balance
         const { data: balanceData, error: balanceError } = await supabase
           .from('user_balances')
@@ -106,28 +106,28 @@ const Dashboard = () => {
         const totalReferrals = referralData?.length || 0;
         const totalCommissions = commissionData?.reduce((sum, comm) => sum + (comm.amount || 0), 0) || 0;
         const totalPayouts = payoutData?.reduce((sum, payout) => sum + (payout.amount || 0), 0) || 0;
-        
+
         setDashboardData({
           stats: {
-            todayEarning: { 
-              value: totalCommissions, 
-              change: 0, 
-              trend: totalCommissions > 0 ? 'up' : 'neutral' 
+            todayEarning: {
+              value: totalCommissions,
+              change: 0,
+              trend: totalCommissions > 0 ? 'up' : 'neutral'
             },
-            totalReferral: { 
-              value: totalReferrals, 
-              change: 0, 
-              trend: totalReferrals > 0 ? 'up' : 'neutral' 
+            totalReferral: {
+              value: totalReferrals,
+              change: 0,
+              trend: totalReferrals > 0 ? 'up' : 'neutral'
             },
-            availableBalance: { 
-              value: balanceData?.available_balance || 0, 
-              change: 0, 
-              trend: 'up' 
+            availableBalance: {
+              value: balanceData?.available_balance || 0,
+              change: 0,
+              trend: 'up'
             },
-            paidAmount: { 
-              value: totalPayouts, 
-              change: 0, 
-              trend: totalPayouts > 0 ? 'up' : 'neutral' 
+            paidAmount: {
+              value: totalPayouts,
+              change: 0,
+              trend: totalPayouts > 0 ? 'up' : 'neutral'
             },
           }
         });
@@ -158,13 +158,13 @@ const Dashboard = () => {
   // Format currency using user's selected currency
   const formatCurrency = (amount) => {
     const { code, symbol } = getCurrencyInfo();
-    
+
     // Format number with proper locale for the currency
     const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(amount);
-    
+
     // Handle different symbol positions based on currency
     if (code === 'EUR') {
       return `${formattedNumber}${symbol}`;
@@ -178,7 +178,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-layout">
       <Sidebar />
-      
+
       <main className="dashboard-main">
         <div className="dashboard-content px-2 px-md-3">
           {/* Dashboard Header */}
@@ -188,7 +188,7 @@ const Dashboard = () => {
             </div>
             <div className="d-flex align-items-center gap-2">
               {profile?.currency ? (
-                <span 
+                <span
                   className="badge bg-success-subtle text-success border border-success-subtle"
                   title={`Currency: ${profile.currency}`}
                 >
@@ -199,7 +199,7 @@ const Dashboard = () => {
                   Loading currency...
                 </span>
               )}
-              <button 
+              <button
                 className="btn btn-outline-secondary btn-sm"
                 onClick={refreshDashboard}
                 disabled={loading}
@@ -207,6 +207,17 @@ const Dashboard = () => {
               >
                 <i className={`bi bi-arrow-clockwise ${loading ? 'spinner-border spinner-border-sm' : ''}`}></i>
               </button>
+
+              {/* ✅ Admin Dashboard Button (only visible to admins) */}
+              {profile?.role === 'admin' && (
+                <button
+                  className="btn btn-outline-success btn-sm"
+                  onClick={() => navigate('/admin/dashboard')}
+                  title="Go to Admin Dashboard"
+                >
+                  <i className="bi bi-speedometer2 me-1"></i> Admin Panel
+                </button>
+              )}
             </div>
           </div>
 
@@ -219,21 +230,21 @@ const Dashboard = () => {
             </div>
           ) : (
             <>
-            {/* Video Banner - Mobile Only */}
-            <div className="card mb-3 d-lg-none">
-              <video 
-                src={affiliateVideo}
-                className="card-img-top"
-                style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '12px', display: 'block' }}
-                autoPlay
-                loop
-                muted
-                playsInline
-              />
-            </div>
+              {/* Video Banner - Mobile Only */}
+              <div className="card mb-3 d-lg-none">
+                <video
+                  src={affiliateVideo}
+                  className="card-img-top"
+                  style={{ width: '100%', height: '250px', objectFit: 'cover', borderRadius: '12px', display: 'block' }}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              </div>
 
-           
-            
+
+
               {/* Stats Cards Row */}
               <div className="container-fluid px-0">
                 <div className="row g-3 mb-4">
@@ -247,7 +258,7 @@ const Dashboard = () => {
                               {formatCurrency(dashboardData.stats.todayEarning.value)}
                             </h4>
                             <small className="text-dark opacity-75">
-                              <i className={`bi bi-arrow-${dashboardData.stats.todayEarning.trend === 'up' ? 'up' : dashboardData.stats.todayEarning.trend === 'down' ? 'down' : 'dash'}`}></i> 
+                              <i className={`bi bi-arrow-${dashboardData.stats.todayEarning.trend === 'up' ? 'up' : dashboardData.stats.todayEarning.trend === 'down' ? 'down' : 'dash'}`}></i>
                               {' '}from referrals
                             </small>
                           </div>
@@ -269,7 +280,7 @@ const Dashboard = () => {
                               {dashboardData.stats.totalReferral.value}
                             </h4>
                             <small className="text-dark opacity-75">
-                              <i className={`bi bi-arrow-${dashboardData.stats.totalReferral.trend === 'up' ? 'up' : 'down'}`}></i> 
+                              <i className={`bi bi-arrow-${dashboardData.stats.totalReferral.trend === 'up' ? 'up' : 'down'}`}></i>
                               {' '}All time referrals
                             </small>
                           </div>
@@ -294,7 +305,7 @@ const Dashboard = () => {
                               <i className="bi bi-wallet2"></i> Ready to withdraw
                             </small>
                             <div className="mt-2">
-                              <button 
+                              <button
                                 className="btn btn-sm btn-outline-dark d-flex align-items-center gap-1"
                                 onClick={() => navigate('/dashboard/payment')}
                                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
@@ -324,7 +335,7 @@ const Dashboard = () => {
                             </h4>
                             <small className="text-dark opacity-75">
                               <i className="bi bi-check-circle"></i> Total paid out
-                            </small>
+                            </small>A
                           </div>
                           <div className="stat-icon-small bg-white bg-opacity-25 text-dark">
                             <i className="bi bi-check-circle"></i>
@@ -335,18 +346,18 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-                
+
               {/* Invite Section - Full Width */}
               <div className="mt-4">
-                        <Invite embedded={true} />
+                <Invite embedded={true} />
               </div>
             </>
           )}
         </div>
       </main>
-        <div className="footer-space">
-            <Smallfooter />
-        </div>
+      <div className="footer-space">
+        <Smallfooter />
+      </div>
     </div>
   );
 };
