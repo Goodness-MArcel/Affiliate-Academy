@@ -36,7 +36,8 @@ const Layout = () => {
     location.pathname === '/AdminLogin' ||
     location.pathname === '/AdminRegister' ||
     location.pathname.startsWith('/dashboard') ||
-    location.pathname.startsWith('/AdminDashboard');
+    location.pathname.startsWith('/AdminDashboard') ||
+    location.pathname.startsWith('/admin');
 
   return (
     <div className="d-flex flex-column min-vh-100">
