@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../../context/userContext';
+import { useAuth } from '../../context/AuthProvider';
 import './Login.css';
 
 const Login = () => {
-  const { login } = useUser();               // <-- from UserContext
+  const { login } = useAuth();               // <-- from AuthProvider
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({

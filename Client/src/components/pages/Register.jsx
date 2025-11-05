@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useUser } from '../../context/userContext';
+// import { useUser } from '../../context/userContext';
+import { useAuth } from '../../context/AuthProvider.jsx';
 import { countries } from './userCountries.js';
 import PaystackPayment from '../../payment/PaystackPayment.jsx';
 import './Register.css';
 
 const Register = () => {
-  const { register } = useUser();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 

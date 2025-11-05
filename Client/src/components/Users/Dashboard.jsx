@@ -4,13 +4,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Smallfooter from "./UserLayout/smallfooter";
 import affiliateVideo from "../../assets/affilatevidoe.mp4";
-import { useUser } from '../../context/userContext';
+import { useAuth } from '../../context/AuthProvider.jsx';
 import { supabase } from '../../../supabase';
 import Invite from './Invite.jsx';
 
 
 const Dashboard = () => {
-  const { user, profile } = useUser();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
