@@ -274,7 +274,7 @@
 
 /* Sidebar Navigation Links */
 .admin-sidebar .nav-link {
-  color: #495057;
+  color: #000000;
   transition: all 0.3s ease;
   border-radius: 0;
   margin: 2px 8px;
@@ -311,12 +311,23 @@
 }
 
 .admin-sidebar .nav-link.active {
+  background: transparent;
+  color: #000000 !important;
+  box-shadow: none;
+}
+
+.admin-sidebar .nav-link.active .text-muted {
+  color: #6c757d !important;
+}
+
+/* Dashboard specific active state - brown */
+.admin-sidebar .nav-link.dashboard-item.active {
   background: linear-gradient(135deg, #8b4513, #a0522d);
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
 }
 
-.admin-sidebar .nav-link.active .text-muted {
+.admin-sidebar .nav-link.dashboard-item.active .text-muted {
   color: rgba(255, 255, 255, 0.8) !important;
 }
 

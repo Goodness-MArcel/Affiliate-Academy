@@ -4,8 +4,35 @@
   "installCommand": "cd Client && npm install",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/AdminLogin",
       "destination": "/index.html"
+    },
+    {
+      "source": "/AdminDashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api|_next|static|favicon.ico|assets|.*\\.).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }

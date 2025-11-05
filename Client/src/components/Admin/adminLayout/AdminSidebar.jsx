@@ -140,7 +140,7 @@ const AdminSidebar = () => {
                   to={item.path}
                   className={`nav-link d-flex align-items-center py-3 px-3 text-decoration-none position-relative ${
                     isActive(item.path) ? 'active' : ''
-                  }`}
+                  } ${item.title === 'Dashboard' ? 'dashboard-item' : ''}`}
                   data-bs-toggle={item.submenu ? 'collapse' : ''}
                   data-bs-target={item.submenu ? `#submenu-${index}` : ''}
                   title={isCollapsed ? item.title : ''}

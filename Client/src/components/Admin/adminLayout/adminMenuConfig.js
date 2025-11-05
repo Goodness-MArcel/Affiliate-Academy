@@ -1,21 +1,17 @@
 // Admin Menu Configuration Data
 export const ADMIN_MENU_ITEMS = [
     {
-      title: 'Dashboard',
-      icon: 'fas fa-tachometer-alt',
+      title: 'Dashboard', 
+      icon: 'fas fa-tachometer-alt', 
       path: '/admin/dashboard',
-      description: 'Overview & Analytics'
-    },
-    {
+      description: 'Admin Dashboard Overview' },
+    { 
       title: 'Manage Users',
       icon: 'fas fa-users',
       path: '/admin/users',
       description: 'User Management',
       submenu: [
         { title: 'All Users', path: '/admin/users/all' },
-        { title: 'Active Users', path: '/admin/users/active' },
-        { title: 'Inactive Users', path: '/admin/users/inactive' },
-        { title: 'User Roles', path: '/admin/users/roles' }
       ]
     },
     {
@@ -25,9 +21,6 @@ export const ADMIN_MENU_ITEMS = [
       description: 'Upload & Manage Courses',
       submenu: [
         { title: 'Upload Course', path: '/admin/courses/upload' },
-        { title: 'All Courses', path: '/admin/courses/all' },
-        { title: 'Course Categories', path: '/admin/courses/categories' },
-        { title: 'Course Analytics', path: '/admin/courses/analytics' }
       ]
     },
     {
@@ -35,35 +28,18 @@ export const ADMIN_MENU_ITEMS = [
       icon: 'fas fa-money-check-alt',
       path: '/admin/payments',
       description: 'Withdrawal Requests',
-      submenu: [
-        { title: 'Pending Requests', path: '/admin/payments/pending' },
-        { title: 'Approved Requests', path: '/admin/payments/approved' },
-        { title: 'Rejected Requests', path: '/admin/payments/rejected' },
-        { title: 'Payment History', path: '/admin/payments/history' }
-      ]
     },
     {
       title: 'Affiliate System',
       icon: 'fas fa-network-wired',
       path: '/admin/affiliate',
       description: 'Referral Management',
-      submenu: [
-        { title: 'Commission Rates', path: '/admin/affiliate/rates' },
-        { title: 'Referral Tree', path: '/admin/affiliate/tree' },
-        { title: 'Bonus Management', path: '/admin/affiliate/bonuses' },
-        { title: 'Payout Reports', path: '/admin/affiliate/payouts' }
-      ]
     },
     {
       title: 'Real Estate',
       icon: 'fas fa-house-user',
       path: '/admin/realestate',
       description: 'Real Estate Management',
-      submenu: [
-        { title: 'Property Listings', path: '/admin/realestate/listings' },
-        { title: 'Investment Plans', path: '/admin/realestate/plans' },
-        { title: 'Property Analytics', path: '/admin/realestate/analytics' }
-      ]
     },
     {
       title: 'Site Settings',
@@ -75,17 +51,6 @@ export const ADMIN_MENU_ITEMS = [
         { title: 'Payment Settings', path: '/admin/settings/payments' },
         { title: 'Email Settings', path: '/admin/settings/email' },
         { title: 'Security Settings', path: '/admin/settings/security' }
-      ]
-    },
-    {
-      title: 'Analytics & Reports',
-      icon: 'fas fa-chart-line',
-      path: '/admin/analytics',
-      description: 'Performance Metrics',
-      submenu: [
-        { title: 'Revenue Reports', path: '/admin/analytics/revenue' },
-        { title: 'User Activity', path: '/admin/analytics/users' },
-        { title: 'Course Performance', path: '/admin/analytics/courses' }
       ]
     },
     {
