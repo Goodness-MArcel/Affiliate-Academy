@@ -42,9 +42,6 @@ export const ADMIN_MENU_ITEMS = [
       description: 'System Configuration',
       submenu: [
         { title: 'General Settings', path: '/admin/settings/general' },
-        { title: 'Payment Settings', path: '/admin/settings/payments' },
-        { title: 'Email Settings', path: '/admin/settings/email' },
-        { title: 'Security Settings', path: '/admin/settings/security' }
       ]
     },
     {
@@ -54,8 +51,6 @@ export const ADMIN_MENU_ITEMS = [
       description: 'System Alerts',
       submenu: [
         { title: 'Send Notifications', path: '/admin/notifications/send' },
-        { title: 'Email Templates', path: '/admin/notifications/templates' },
-        { title: 'Notification History', path: '/admin/notifications/history' }
       ]
     }
 ];

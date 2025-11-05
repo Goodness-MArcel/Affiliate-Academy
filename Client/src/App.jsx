@@ -134,7 +134,7 @@ const Layout = () => {
             }
           />
           <Route
-            path="/admin/settings"
+            path="/admin/settings/general"
             element={
               profile?.role === 'admin'
                 ? <SystemConfig />
