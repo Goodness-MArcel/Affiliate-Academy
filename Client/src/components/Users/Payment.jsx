@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../../../supabase"
-import { useUser } from "../../context/userContext"
+// import { useUser } from "../../context/userContext"
+import { useAuth } from "../../context/AuthProvider"
 import Sidebar from "./UserLayout/sidebar"
 import Smallfooter from "./UserLayout/smallfooter"
 
 const Payment = () => {
-  const { user, profile } = useUser()
+  const { user, profile } = useAuth()
   const [withdrawalData, setWithdrawalData] = useState({
     amount: '',
     accountDetails: ''

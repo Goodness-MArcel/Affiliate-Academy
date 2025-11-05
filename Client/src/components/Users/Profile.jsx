@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "./UserLayout/sidebar";
 import Smallfooter from "./UserLayout/smallfooter";
-import { useUser } from "../../context/userContext";
+// import { useUser } from "../../context/userContext";
+import { useAuth } from "../../context/AuthProvider";
 import { countries } from "../pages/userCountries";
 import { supabase } from "../../../supabase";
 import "./Css/Dashboard.css";
 
 const Profile = () => {
 
-  const { user, profile } = useUser();
+  const { user, profile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../../../supabase';
-import { useUser } from '../../context/userContext';
+// import { useUser } from '../../context/userContext';
+import { useAuth } from '../../context/AuthProvider';
 import Sidebar from './UserLayout/sidebar';
 import Smallfooter from "./UserLayout/smallfooter";
 import "./Css/Dashboard.css";
@@ -11,7 +12,7 @@ const ProgramAccess = ({ embedded = false }) => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [error, setError] = useState(null);
   const location = useLocation();
-  const { user } = useUser();
+  const { user } = useAuth();
 
   // Save selected courses to database
   const saveSelectedCourses = async (courses) => {

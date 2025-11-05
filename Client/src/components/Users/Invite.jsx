@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import { supabase } from "../../../supabase"
-import { useUser } from "../../context/userContext"
+// import { useUser } from "../../context/userContext"
+import { useAuth } from "../../context/AuthProvider"
 import Sidebar from "./UserLayout/sidebar"
 import Smallfooter from "./UserLayout/smallfooter"
 
 const Invite = ({ embedded = false }) => {
-  const { user } = useUser()
+  const { user } = useAuth()
   const [stats, setStats] = useState({
     totalInvites: 0,
     totalCommission: 0,

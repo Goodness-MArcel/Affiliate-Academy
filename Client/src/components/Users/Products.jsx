@@ -2,14 +2,15 @@
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./UserLayout/sidebar";
 import Smallfooter from "./UserLayout/smallfooter";
-import { useUser } from "../../context/userContext";
+// import { useUser } from "../../context/userContext";
+import { useAuth } from "../../context/AuthProvider";
 import { supabase } from "../../../supabase";
 import "./Css/Dashboard.css";
 
 const Products = () => {
   console.log('Products component rendering...');
   
-  const { user } = useUser();
+const { user } = useAuth();
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [copiedLinks, setCopiedLinks] = useState({});

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useUser } from '../../../context/userContext';
+import { useAuth } from '../../../context/AuthProvider';
 import './sidebar.css';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile, logout } = useUser(); // ✅ access from context
+  const { user, profile, logout } = useAuth(); // ✅ access from context
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 

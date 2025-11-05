@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import './AdminLogin.css'
 import { useNavigate } from 'react-router-dom';
-import { useAdmin } from '../../context/AdminContext';
+// import { useAdmin } from '../../context/AdminContext';
+import { useAuth } from '../../context/AuthProvider';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const AdminLogin = () => {
   };
 
   // Inside AdminLogin.jsx → handleSubmit
-  const { login } = useAdmin(); // ← Add this
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
