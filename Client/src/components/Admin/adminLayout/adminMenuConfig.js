@@ -30,12 +30,6 @@ export const ADMIN_MENU_ITEMS = [
       description: 'Withdrawal Requests',
     },
     {
-      title: 'Affiliate System',
-      icon: 'fas fa-network-wired',
-      path: '/admin/affiliate',
-      description: 'Referral Management',
-    },
-    {
       title: 'Real Estate',
       icon: 'fas fa-house-user',
       path: '/admin/realestate',

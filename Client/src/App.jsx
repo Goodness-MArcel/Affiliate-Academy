@@ -29,7 +29,6 @@ import AdminDashboardPage from './components/Admin/pages/Dashboard.jsx';
 import ManageUsers from './components/Admin/pages/Manageusers.jsx';
 import CourseManagement from './components/Admin/pages/CourseManagement.jsx';
 import WithdrawRequest from './components/Admin/pages/Withdrawrequest.jsx';
-import ReferalManagement from './components/Admin/pages/ReferalManagement.jsx';
 import AddEstate from './components/Admin/pages/AddEstate.jsx';
 import SystemConfig from './components/Admin/pages/SystemConfig.jsx';
 
@@ -125,14 +124,7 @@ const Layout = () => {
                 : <Navigate to="/404" replace />
             }
           />
-          <Route
-            path="/admin/affiliate"
-            element={
-              profile?.role === 'admin'
-                ? <ReferalManagement />
-                : <Navigate to="/404" replace />
-            }
-          />
+          
           <Route
             path="/admin/realestate"
             element={
