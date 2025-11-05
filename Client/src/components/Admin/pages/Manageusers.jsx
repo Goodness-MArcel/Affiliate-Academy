@@ -403,7 +403,7 @@ const Manageusers = () => {
           width: windowWidth > 991 ? (isSidebarCollapsed ? 'calc(100% - 70px)' : 'calc(100% - 280px)') : '100%'
         }}
       >
-        <div className="flex-grow-1 px-3">
+        <div className="flex-grow-1 px-3 mt-5">
           {/* Header */}
           <div className="mb-4 pt-3">
             <h1 className="h4 mb-1 text-dark fw-bold">Manage Users</h1>
