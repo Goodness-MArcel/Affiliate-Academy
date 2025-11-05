@@ -271,7 +271,7 @@ const Withdrawrequest = () => {
             overflowX: 'hidden'
           }}
         >
-          <div className="mb-4 mt-">
+          <div className="mb-4 mt-5">
             <h2 className="mb-2 fw-bold">
               <i className="bi bi-cash-stack me-2 text-primary"></i>
               Withdrawal Requests
