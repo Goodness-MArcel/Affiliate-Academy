@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import React from 'react';
+import React, {useEffect} from 'react';
+import { supabase } from '../supabase.js';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
 import Home from './components/pages/Home.jsx';
@@ -43,6 +44,14 @@ import { useAuth } from './context/AuthProvider';  // ← NEW: useAuth instead o
 const Layout = () => {
   const location = useLocation();
   const { profile } = useAuth();  // ← useAuth instead of useUser
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.log("Current user:", data.session?.user);
+    };
+    checkSession();
+  }, []);
 
   // Hide Nav & Footer on these routes
   const hideNavAndFooter =
@@ -92,64 +101,57 @@ const Layout = () => {
               </AdminProtectedRoute>
             }
           />
-          <Route
-          path="/admin/dashboard'"
-          element={
-              profile?.role === 'admin'
-                ? <AdminDashboardPage />
-                : <Navigate to="/404" replace />
-            } 
-           />
+
           <Route
             path="/admin/users/all"
             element={
-              profile?.role === 'admin'
-                ? <ManageUsers />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <ManageUsers />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/courses/upload"
             element={
-              profile?.role === 'admin'
-                ? <CourseManagement />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <CourseManagement />
+              </AdminProtectedRoute>
             }
           />
-         
+
           <Route
             path="/admin/payments"
             element={
-              profile?.role === 'admin'
-                ? <WithdrawRequest />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <WithdrawRequest />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/affiliate"
             element={
-              profile?.role === 'admin'
-                ? <ReferalManagement />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <ReferalManagement />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/realestate"
             element={
-              profile?.role === 'admin'
-                ? <AddEstate />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <AddEstate />
+              </AdminProtectedRoute>
             }
           />
           <Route
             path="/admin/settings"
             element={
-              profile?.role === 'admin'
-                ? <SystemConfig />
-                : <Navigate to="/404" replace />
+              <AdminProtectedRoute>
+                <SystemConfig />
+              </AdminProtectedRoute>
             }
           />
-          
+
 
           {/* ==================== 404 Fallback ==================== */}
           <Route path="/404" element={<NotFound />} />
