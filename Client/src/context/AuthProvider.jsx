@@ -1,4 +1,4 @@
-// // src/context/AuthProvider.jsx
+
 // import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 // import { supabase } from '../../supabase';
 // import { countries } from '../components/pages/userCountries.js';
@@ -8,91 +8,51 @@
 // export const AuthProvider = ({ children }) => {
 //   const [user, setUser] = useState(null);
 //   const [profile, setProfile] = useState(null);
-//   const [admin, setAdmin] = useState(null);
-//   const [loading, setLoading] = useState(true);           // Auth session loading
-//   const [profileLoading, setProfileLoading] = useState(false); // Profile fetch loading
-//   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true); // Wait for admin status
+//   const [loading, setLoading] = useState(true);
 
-//   // ========== 1. Session Restore: Wait for INITIAL_SESSION ==========
+//   // Session restore
 //   useEffect(() => {
-//     let mounted = true;
-
 //     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-//       if (!mounted) return;
-
-//       console.log('Auth event:', event, session ? `User: ${session.user.id}` : 'No session');
-
-//       if (['INITIAL_SESSION', 'SIGNED_IN', 'TOKEN_REFRESHED'].includes(event)) {
-//         setUser(session?.user ?? null);
-//       } else if (event === 'SIGNED_OUT') {
-//         setUser(null);
-//       }
-
-//       if (['INITIAL_SESSION', 'SIGNED_IN', 'SIGNED_OUT'].includes(event)) {
+//       setUser(session?.user ?? null);
+//       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
 //         setLoading(false);
 //       }
 //     });
 
-//     return () => {
-//       mounted = false;
-//       listener?.subscription.unsubscribe();
-//     };
+//     return () => listener?.subscription.unsubscribe();
 //   }, []);
 
-//   // ========== 2. Fetch Profile + Admin Role ==========
+//   // Fetch profile (only user data, no admin)
 //   const fetchProfile = useCallback(async (userId) => {
 //     if (!userId) {
 //       setProfile(null);
-//       setAdmin(null);
-//       setProfileLoading(false);
-//       setIsCheckingAdmin(false);
 //       return;
 //     }
-
-//     setProfileLoading(true);
-//     setIsCheckingAdmin(true); // Start checking
 
 //     try {
 //       const { data, error } = await supabase
 //         .from('users')
-//         .select('*, role')
+//         .select('*')
 //         .eq('id', userId)
 //         .single();
 
 //       if (error) throw error;
-
 //       setProfile(data);
-
-//       // SET ADMIN FIRST
-//       const isAdmin = data?.role === 'admin';
-//       setAdmin(isAdmin ? { ...data, user: { id: userId } } : null);
-//       console.log('Admin status set:', isAdmin);
-
-//       // THEN STOP CHECKING
-//       setIsCheckingAdmin(false);
 //     } catch (err) {
 //       console.error('Profile fetch failed:', err);
 //       setProfile(null);
-//       setAdmin(null);
-//       setIsCheckingAdmin(false);
-//     } finally {
-//       setProfileLoading(false);
 //     }
 //   }, []);
 
-//   // ========== 3. Trigger fetchProfile when user changes ==========
 //   useEffect(() => {
 //     if (user?.id && !loading) {
 //       fetchProfile(user.id);
 //     } else if (!user) {
 //       setProfile(null);
-//       setAdmin(null);
-//       setProfileLoading(false);
-//       setIsCheckingAdmin(false);
 //     }
 //   }, [user?.id, loading, fetchProfile]);
 
-//   // ========== 4. Register ==========
+//   // Register
 //   const register = async ({
 //     fullName,
 //     email,
@@ -110,9 +70,9 @@
 //     });
 
 //     if (authError) throw authError;
-//     if (!authData.user) throw new Error('No user returned after signup');
+//     if (!authData.user) throw new Error('No user');
 
-//     const { error: profileError } = await supabase.from('users').insert({
+//     await supabase.from('users').insert({
 //       id: authData.user.id,
 //       full_name: fullName,
 //       email,
@@ -124,43 +84,37 @@
 //       role: 'user',
 //     });
 
-//     if (profileError) {
-//       await supabase.auth.admin.deleteUser(authData.user.id);
-//       throw profileError;
-//     }
-
 //     await supabase.from('user_balances').insert({
 //       user_id: authData.user.id,
 //       available_balance: 0,
 //       pending_balance: 0,
 //     });
 
+//     // Referral logic (unchanged)
 //     if (referralCode) {
 //       try {
-//         const { error: referralError } = await supabase.from('user_referrals').insert({
+//         await supabase.from('user_referrals').insert({
 //           referrer_id: referralCode,
 //           referred_id: authData.user.id,
 //           is_active: true,
 //           created_at: new Date().toISOString(),
 //         });
 
-//         if (!referralError) {
-//           const commissionAmount = 500;
-//           await supabase.from('referral_commissions').insert({
-//             referrer_id: referralCode,
-//             referred_id: authData.user.id,
-//             amount: commissionAmount,
-//             commission_type: 'registration',
-//             created_at: new Date().toISOString(),
-//           });
+//         const commissionAmount = 500;
+//         await supabase.from('referral_commissions').insert({
+//           referrer_id: referralCode,
+//           referred_id: authData.user.id,
+//           amount: commissionAmount,
+//           commission_type: 'registration',
+//           created_at: new Date().toISOString(),
+//         });
 
-//           await supabase.rpc('increment_balance', {
-//             user_id: referralCode,
-//             amount: commissionAmount,
-//           });
-//         }
+//         await supabase.rpc('increment_balance', {
+//           user_id: referralCode,
+//           amount: commissionAmount,
+//         });
 //       } catch (err) {
-//         console.error('Referral processing failed:', err);
+//         console.error('Referral failed:', err);
 //       }
 //     }
 
@@ -169,32 +123,26 @@
 //     return authData;
 //   };
 
-//   // ========== 5. Login ==========
+//   // Login
 //   const login = async (email, password) => {
 //     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 //     if (error) throw error;
-
 //     setUser(data.user);
 //     await fetchProfile(data.user.id);
 //     return data;
 //   };
 
-//   // ========== 6. Logout ==========
+//   // Logout
 //   const logout = async () => {
 //     await supabase.auth.signOut();
 //     setUser(null);
 //     setProfile(null);
-//     setAdmin(null);
 //   };
 
-//   // ========== 7. Context Value ==========
 //   const value = {
 //     user,
 //     profile,
-//     admin,
 //     loading,
-//     profileLoading,
-//     isCheckingAdmin,
 //     register,
 //     login,
 //     logout,
@@ -206,13 +154,10 @@
 
 // export const useAuth = () => {
 //   const context = useContext(AuthContext);
-//   if (!context) {
-//     throw new Error('useAuth must be used within an AuthProvider');
-//   }
+//   if (!context) throw new Error('useAuth must be used within AuthProvider');
 //   return context;
 // };
 
-// src/context/AuthProvider.jsx
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../supabase';
 import { countries } from '../components/pages/userCountries.js';
@@ -222,14 +167,20 @@ const AuthContext = createContext(undefined);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Auth loading only
+  const [profileLoading, setProfileLoading] = useState(false); // ADD: Profile fetch loading
 
   // Session restore
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+      
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
         setLoading(false);
+        setProfileLoading(false);
+      } else if (event === 'SIGNED_IN') {
+        setLoading(false);
+        // Don't set profileLoading=false here — let fetchProfile handle it
       }
     });
 
@@ -240,8 +191,11 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = useCallback(async (userId) => {
     if (!userId) {
       setProfile(null);
+      setProfileLoading(false); // ADD
       return;
     }
+
+    setProfileLoading(true); // ADD: Show loading during fetch
 
     try {
       const { data, error } = await supabase
@@ -255,6 +209,8 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Profile fetch failed:', err);
       setProfile(null);
+    } finally {
+      setProfileLoading(false); // ADD: Always hide loading
     }
   }, []);
 
@@ -263,10 +219,11 @@ export const AuthProvider = ({ children }) => {
       fetchProfile(user.id);
     } else if (!user) {
       setProfile(null);
+      setProfileLoading(false);
     }
   }, [user?.id, loading, fetchProfile]);
 
-  // Register
+  // Register (unchanged)
   const register = async ({
     fullName,
     email,
@@ -333,7 +290,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     setUser(authData.user);
-    await fetchProfile(authData.user.id);
+    await fetchProfile(authData.user.id); // This will set profileLoading=true, then false
     return authData;
   };
 
@@ -342,7 +299,7 @@ export const AuthProvider = ({ children }) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     setUser(data.user);
-    await fetchProfile(data.user.id);
+    await fetchProfile(data.user.id); // Waits for profile
     return data;
   };
 
@@ -351,12 +308,15 @@ export const AuthProvider = ({ children }) => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    setProfileLoading(false);
   };
 
   const value = {
     user,
     profile,
-    loading,
+    loading, // Auth loading
+    profileLoading, // ADD: Profile loading
+    isFullyLoaded: !loading && !profileLoading && !!user, // ADD: Full auth + profile ready
     register,
     login,
     logout,

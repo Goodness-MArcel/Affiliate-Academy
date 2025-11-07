@@ -56,7 +56,7 @@ const Manageusers = () => {
 
   useEffect(() => {
     fetchUsers();
-    
+
     // Check sidebar state on mount and listen for changes
     const checkSidebarState = () => {
       const sidebar = document.querySelector('.admin-sidebar');
@@ -72,10 +72,10 @@ const Manageusers = () => {
     if (sidebar) {
       const observer = new MutationObserver(checkSidebarState);
       observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-      
+
       return () => observer.disconnect();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchQuery]);
 
   const fetchUsers = async () => {
@@ -86,12 +86,14 @@ const Manageusers = () => {
 
       let query = supabase
         .from('users')
-        .select('*')
+        .select('*', { count: 'exact' })  // CRITICAL
         .order('created_at', { ascending: false })
         .range(start, end);
 
       if (searchQuery) {
-        query = query.or(`full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,phone_number.ilike.%${searchQuery}%`);
+        query = query.or(
+          `full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,phone_number.ilike.%${searchQuery}%`
+        );
       }
 
       const { data, error, count } = await query;
@@ -100,6 +102,8 @@ const Manageusers = () => {
         console.error('Error fetching users:', error);
         return;
       }
+
+      console.log('Users fetched:', data?.length, 'Total:', count); // DEBUG
 
       setUsers(data || []);
       setTotalUsers(count || 0);
@@ -396,7 +400,7 @@ const Manageusers = () => {
       <div 
         className="admin-content admin-responsive-content flex-grow-1 d-flex flex-column" 
         style={{ 
-          backgroundColor: 'white', 
+          backgroundColor: 'white',
           minHeight: '100vh',
           marginLeft: windowWidth > 991 ? (isSidebarCollapsed ? '70px' : '280px') : '0',
           transition: 'margin-left 0.3s ease',
@@ -429,7 +433,7 @@ const Manageusers = () => {
           </div>
 
           {/* Users Table */}
-          <div className="card border-0 shadow-sm" style={{ 
+          <div className="card border-0 shadow-sm" style={{
             overflow: 'visible',
             backgroundColor: 'transparent',
             boxShadow: 'none'
@@ -445,7 +449,7 @@ const Manageusers = () => {
                   <p className="mt-3 text-muted">Loading users...</p>
                 </div>
               ) : (
-                <div style={{ 
+                <div style={{
                   position: 'relative',
                   overflowX: 'auto',
                   overflowY: 'visible',
@@ -480,8 +484,8 @@ const Manageusers = () => {
                             <td className="ps-4">
                               <div className="d-flex align-items-center">
                                 {user.avatar_url ? (
-                                  <img 
-                                    src={user.avatar_url} 
+                                  <img
+                                    src={user.avatar_url}
                                     alt={user.full_name || 'User'}
                                     className="me-2"
                                     style={{
@@ -498,8 +502,8 @@ const Manageusers = () => {
                                     }}
                                   />
                                 ) : null}
-                                <div 
-                                  className="me-2" 
+                                <div
+                                  className="me-2"
                                   style={{
                                     width: '40px',
                                     height: '40px',
@@ -588,7 +592,7 @@ const Manageusers = () => {
       {/* Dropdown Menu - Positioned outside scroll container */}
       {activeDropdown && (
         <>
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -599,12 +603,12 @@ const Manageusers = () => {
             }}
             onClick={() => setActiveDropdown(null)}
           />
-          {users.map((user) => 
+          {users.map((user) =>
             activeDropdown === user.id ? (
-              <div 
+              <div
                 key={user.id}
-                className="dropdown-menu show" 
-                style={{ 
+                className="dropdown-menu show"
+                style={{
                   position: 'fixed',
                   top: `${dropdownPosition.top}px`,
                   left: `${dropdownPosition.left}px`,
@@ -669,9 +673,9 @@ const Manageusers = () => {
                 <i className="bi bi-exclamation-triangle-fill me-2"></i>
                 Confirm Delete
               </h5>
-              <button 
-                type="button" 
-                className="btn-close" 
+              <button
+                type="button"
+                className="btn-close"
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setUserToDelete(null);
@@ -679,7 +683,7 @@ const Manageusers = () => {
               ></button>
             </div>
             <hr />
-            
+
             <div className="text-center py-3">
               <i className="bi bi-trash" style={{ fontSize: '3rem', color: '#dc3545' }}></i>
               <h5 className="mt-3">Delete User Account?</h5>
@@ -691,12 +695,12 @@ const Manageusers = () => {
                 This action cannot be undone. All user data will be permanently removed.
               </div>
             </div>
-            
+
             <hr />
             <div className="d-flex gap-2 justify-content-end">
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setUserToDelete(null);
@@ -704,9 +708,9 @@ const Manageusers = () => {
               >
                 Cancel
               </button>
-              <button 
-                type="button" 
-                className="btn btn-danger" 
+              <button
+                type="button"
+                className="btn btn-danger"
                 onClick={confirmDelete}
               >
                 <i className="bi bi-trash me-2"></i>Delete User

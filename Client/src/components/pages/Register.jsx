@@ -1,6 +1,6 @@
+// src/components/pages/Register.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-// import { useUser } from '../../context/userContext';
 import { useAuth } from '../../context/AuthProvider.jsx';
 import { countries } from './userCountries.js';
 import PaystackPayment from '../../payment/PaystackPayment.jsx';
@@ -31,16 +31,13 @@ const Register = () => {
 
   const [showPaymentScreen, setShowPaymentScreen] = useState(false);
   const [paymentRef, setPaymentRef] = useState('');
-  const [paymentAmount] = useState(5000); // ₦50.00
+  const [paymentAmount] = useState(5000);
   const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-  // Extract referral code from URL parameters
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const refParam = searchParams.get('ref');
-    if (refParam) {
-      setReferralCode(refParam);
-    }
+    if (refParam) setReferralCode(refParam);
   }, [location.search]);
 
   const handleChange = (e) => {
@@ -62,7 +59,6 @@ const Register = () => {
     setLoading(true);
 
     try {
-      // Validation
       if (!formData.fullName.trim() || !formData.email.trim() || !formData.phoneNumber.trim())
         throw new Error('Please fill out all required fields.');
       if (!formData.country) throw new Error('Please select your country.');
@@ -70,12 +66,9 @@ const Register = () => {
       if (formData.password !== formData.confirmPassword) throw new Error('Passwords do not match.');
       if (!formData.agreedToTerms) throw new Error('You must agree to the Terms and Conditions.');
 
-      // GENERATE SAFE REFERENCE (Paystack-safe: only a-z, 0-9, _, -)
-      const safeEmail = formData.email.replace(/[@.]/g, '_'); // john.doe@example.com → john_doe_example_com
+      const safeEmail = formData.email.replace(/[@.]/g, '_');
       const timestamp = Date.now();
       const ref = `${safeEmail}_${timestamp}`;
-
-      console.log('Generated Paystack reference:', ref); // Debug
 
       setPaymentRef(ref);
       setShowPaymentScreen(true);
@@ -87,25 +80,21 @@ const Register = () => {
   };
 
   const handlePaystackSuccess = async (referenceObj) => {
-    console.log('Paystack success response:', referenceObj); // Debug
     setLoading(true);
     setErrorMsg('');
 
     try {
-      // 1. Verify on backend (GET request)
       const verifyRes = await fetch(
         `${backendURL}/api/payment/verify/${referenceObj.reference}`,
         { method: 'GET' }
       );
-
       const verifyData = await verifyRes.json();
-      console.log('Backend verification result:', verifyData); // Debug
 
       if (!verifyData.success) {
         throw new Error(verifyData.message || 'Payment verification failed');
       }
 
-      // 2. Register user
+      // Register with role
       await register({
         fullName: formData.fullName,
         email: formData.email,
@@ -116,13 +105,12 @@ const Register = () => {
         agreedToTerms: formData.agreedToTerms,
         paymentRef: referenceObj.reference,
         paid: true,
-        referralCode: referralCode || null, // Pass referral code if available
+        referralCode: referralCode || null,
+        role: 'user', // Explicit role
       });
 
-      // 3. Redirect
       navigate('/login', { replace: true });
     } catch (err) {
-      console.error('Registration error:', err);
       setErrorMsg(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -142,7 +130,6 @@ const Register = () => {
           <span>Back to Home</span>
         </Link>
 
-        {/* FORM SCREEN */}
         {!showPaymentScreen && (
           <div className="register-card">
             <div className="register-header">
@@ -155,9 +142,8 @@ const Register = () => {
               <div className="alert alert-success d-flex align-items-center">
                 <i className="bi bi-gift me-2"></i>
                 <div>
-                  <strong>Referral Bonus!</strong>
-                  <br />
-                  <small>You're joining through a referral link. Complete registration to earn rewards for both you and your referrer!</small>
+                  <strong>Referral Bonus!</strong><br />
+                  <small>Complete registration to earn rewards!</small>
                 </div>
               </div>
             )}
@@ -231,11 +217,7 @@ const Register = () => {
                     required
                     minLength="8"
                   />
-                  <button
-                    type="button"
-                    className="toggle-password"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
+                  <button type="button" className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
                     <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
                   </button>
                 </div>
@@ -256,11 +238,7 @@ const Register = () => {
                     required
                     minLength="8"
                   />
-                  <button
-                    type="button"
-                    className="toggle-password"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
+                  <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                     <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
                   </button>
                 </div>
@@ -271,13 +249,7 @@ const Register = () => {
                 <label htmlFor="country">Select Country</label>
                 <div className="input-wrapper">
                   <i className="bi bi-globe"></i>
-                  <select
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    required
-                  >
+                  <select id="country" name="country" value={formData.country} onChange={handleChange} required>
                     <option value="">Choose your country</option>
                     {countries.map((c) => (
                       <option key={c.code} value={c.code}>{c.name}</option>
@@ -297,13 +269,7 @@ const Register = () => {
                 <label htmlFor="paymentMethod">Payment Method</label>
                 <div className="input-wrapper">
                   <i className="bi bi-credit-card"></i>
-                  <select
-                    id="paymentMethod"
-                    name="paymentMethod"
-                    value={formData.paymentMethod}
-                    onChange={handleChange}
-                    required
-                  >
+                  <select id="paymentMethod" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} required>
                     <option value="">Choose payment method</option>
                     <option value="paystack">Paystack (Card, Bank, USSD)</option>
                     <option value="crypto">Cryptocurrency (Coming Soon)</option>
@@ -323,10 +289,7 @@ const Register = () => {
                     required
                   />
                   <label htmlFor="agreedToTerms">
-                    I agree to the{' '}
-                    <Link to="/terms" className="terms-link">Terms</Link>{' '}
-                    and{' '}
-                    <Link to="/privacy" className="terms-link">Privacy Policy</Link>
+                    I agree to the <Link to="/terms" className="terms-link">Terms</Link> and <Link to="/privacy" className="terms-link">Privacy Policy</Link>
                   </label>
                 </div>
               </div>
@@ -343,7 +306,6 @@ const Register = () => {
           </div>
         )}
 
-        {/* PAYMENT SCREEN */}
         {showPaymentScreen && (
           <div className="payment-screen">
             <div className="payment-card">
