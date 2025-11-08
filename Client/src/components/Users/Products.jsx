@@ -77,7 +77,7 @@ const { user } = useAuth();
 
   // Generate referral link for course
   const generateReferralLink = (courseId) => {
-    return `${window.location.origin}/course/${courseId}?ref=${user?.id}`;
+    return `${window.location.origin}/register${courseId}?ref=${user?.id}`;
   };
 
   // Copy referral link to clipboard
