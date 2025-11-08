@@ -324,9 +324,20 @@ const Register = () => {
 
               {formData.paymentMethod === 'crypto' && (
                 <div className="crypto-placeholder">
-                  <p>Crypto payment coming soon.</p>
-                  <button className="register-button" onClick={() => setShowPaymentScreen(false)}>
-                    Back to Form
+                  <p>Crypto payment selected</p>
+                  <button 
+                    className="register-button" 
+                    onClick={() => navigate('/crypto-payment')}
+                    type="button"
+                  >
+                    Proceed to Crypto Payment <i className="bi bi-arrow-right"></i>
+                  </button>
+                  <button 
+                    className="btn btn-secondary mt-3" 
+                    onClick={() => setShowPaymentScreen(false)}
+                    type="button"
+                  >
+                    <i className="bi bi-arrow-left"></i> Back to Form
                   </button>
                 </div>
               )}

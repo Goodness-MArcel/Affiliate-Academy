@@ -15,6 +15,8 @@ const Payment = () => {
   const [showSuccess, setShowSuccess] = useState(false)
   const [balance, setBalance] = useState(0)
   const [loadingBalance, setLoadingBalance] = useState(true)
+  const [recentWithdrawals, setRecentWithdrawals] = useState([])
+  const [loadingWithdrawals, setLoadingWithdrawals] = useState(true)
 
   // Get currency info from user profile
   const getCurrencyInfo = () => {
@@ -81,8 +83,36 @@ const Payment = () => {
     }
   }
 
+  // Fetch recent withdrawal requests
+  const fetchRecentWithdrawals = async () => {
+    if (!user?.id) return
+    
+    setLoadingWithdrawals(true)
+    try {
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('request_date', { ascending: false })
+        .limit(5)
+
+      if (error) {
+        console.error('Error fetching withdrawals:', error)
+        setRecentWithdrawals([])
+      } else {
+        setRecentWithdrawals(data || [])
+      }
+    } catch (error) {
+      console.error('Withdrawals fetch error:', error)
+      setRecentWithdrawals([])
+    } finally {
+      setLoadingWithdrawals(false)
+    }
+  }
+
   useEffect(() => {
     fetchBalance()
+    fetchRecentWithdrawals()
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
@@ -163,6 +193,7 @@ const Payment = () => {
 
       // Success - refresh balance and show success message
       await fetchBalance()
+      await fetchRecentWithdrawals()
       setShowSuccess(true)
       setWithdrawalData({ amount: '', accountDetails: '' })
       
@@ -351,11 +382,71 @@ const Payment = () => {
                     <span className="d-inline d-sm-none">History</span>
                   </h6>
                 </div>
-                <div className="card-body">
-                  <div className="text-center py-3 py-md-4">
-                    <i className="bi bi-database display-6 display-md-4 text-muted mb-2 mb-md-3"></i>
-                    <p className="text-muted mb-0 small">Withdrawal history will be loaded from database</p>
-                  </div>
+                <div className="card-body p-2 p-md-3">
+                  {loadingWithdrawals ? (
+                    <div className="text-center py-3 py-md-4">
+                      <div className="spinner-border text-primary mb-2" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      <p className="text-muted mb-0 small">Loading history...</p>
+                    </div>
+                  ) : recentWithdrawals.length === 0 ? (
+                    <div className="text-center py-3 py-md-4">
+                      <i className="bi bi-inbox display-6 text-muted mb-2"></i>
+                      <p className="text-muted mb-0 small">No withdrawal requests yet</p>
+                    </div>
+                  ) : (
+                    <div className="list-group list-group-flush">
+                      {recentWithdrawals.map((withdrawal) => (
+                        <div key={withdrawal.id} className="list-group-item px-2 py-3 border-0 border-bottom">
+                          <div className="d-flex justify-content-between align-items-start mb-2">
+                            <div className="fw-semibold text-success">
+                              {formatCurrency(withdrawal.amount)}
+                            </div>
+                            <span className={`badge ${
+                              withdrawal.status === 'approved' ? 'bg-success' :
+                              withdrawal.status === 'pending' ? 'bg-warning text-dark' :
+                              withdrawal.status === 'rejected' ? 'bg-danger' :
+                              'bg-secondary'
+                            }`}>
+                              {withdrawal.status === 'approved' ? (
+                                <><i className="bi bi-check-circle me-1"></i>Approved</>
+                              ) : withdrawal.status === 'pending' ? (
+                                <><i className="bi bi-clock me-1"></i>Pending</>
+                              ) : withdrawal.status === 'rejected' ? (
+                                <><i className="bi bi-x-circle me-1"></i>Rejected</>
+                              ) : (
+                                withdrawal.status
+                              )}
+                            </span>
+                          </div>
+                          <div className="small text-muted mb-1">
+                            <i className="bi bi-calendar3 me-1"></i>
+                            {new Date(withdrawal.request_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </div>
+                          {withdrawal.processed_date && (
+                            <div className="small text-muted">
+                              <i className="bi bi-check2 me-1"></i>
+                              Processed: {new Date(withdrawal.processed_date).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </div>
+                          )}
+                          {withdrawal.notes && (
+                            <div className="small mt-2 p-2 bg-light rounded">
+                              <i className="bi bi-sticky me-1"></i>
+                              <strong>Note:</strong> {withdrawal.notes}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
