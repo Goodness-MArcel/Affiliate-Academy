@@ -15,6 +15,7 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import ForgotPassword from './components/pages/ForgotPassword.jsx';
 import ResetPassword from './components/pages/Resetpassword.jsx';
+import CryptoPayment from './components/pages/CryptoPayment.jsx';
 
 import Dashboard from './components/Users/Dashboard.jsx';
 import Profile from './components/Users/Profile.jsx';
@@ -30,7 +31,6 @@ import AdminDashboardPage from './components/Admin/pages/Dashboard.jsx';
 import ManageUsers from './components/Admin/pages/Manageusers.jsx';
 import CourseManagement from './components/Admin/pages/CourseManagement.jsx';
 import WithdrawRequest from './components/Admin/pages/Withdrawrequest.jsx';
-import ReferalManagement from './components/Admin/pages/ReferalManagement.jsx';
 import AddEstate from './components/Admin/pages/AddEstate.jsx';
 import SystemConfig from './components/Admin/pages/SystemConfig.jsx';
 
@@ -80,6 +80,8 @@ const Layout = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
+          <Route path="/crypto-payment" element={<CryptoPayment />} />
+          
 
           {/* ==================== Protected User Routes ==================== */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -128,14 +130,6 @@ const Layout = () => {
             }
           />
           <Route
-            path="/admin/affiliate"
-            element={
-              <AdminProtectedRoute>
-                <ReferalManagement />
-              </AdminProtectedRoute>
-            }
-          />
-          <Route
             path="/admin/realestate"
             element={
               <AdminProtectedRoute>
@@ -144,7 +138,7 @@ const Layout = () => {
             }
           />
           <Route
-            path="/admin/settings"
+            path="/admin/settings/general"
             element={
               <AdminProtectedRoute>
                 <SystemConfig />

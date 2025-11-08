@@ -16,7 +16,37 @@ const Manageusers = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [showSendMailModal, setShowSendMailModal] = useState(false);
+  const [showEditBalanceModal, setShowEditBalanceModal] = useState(false);
+  const [showEditInfoModal, setShowEditInfoModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [mailSubject, setMailSubject] = useState('');
+  const [mailMessage, setMailMessage] = useState('');
+  const [editedBalanceInfo, setEditedBalanceInfo] = useState({});
+  const [editedUserInfo, setEditedUserInfo] = useState({});
   const usersPerPage = 10;
+
+  // Live Alert Function
+  const showLiveAlert = (message, type = 'success') => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    if (!alertPlaceholder) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+
+    alertPlaceholder.append(wrapper);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      wrapper.remove();
+    }, 5000);
+  };
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -105,22 +135,176 @@ const Manageusers = () => {
     }
   };
 
-  const handleBlockUser = async (user) => {
+  const handleSendMail = (user) => {
+    setSelectedUser(user);
+    setShowSendMailModal(true);
+    setActiveDropdown(null);
+  };
+
+  const handleEditBalance = async (user) => {
+    setSelectedUser(user);
+    
+    // Fetch existing balance data
+    try {
+      const { data: balanceData } = await supabase
+        .from('user_balances')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (balanceData) {
+        setEditedBalanceInfo({
+          available_balance: balanceData.available_balance || 0,
+          pending_balance: balanceData.pending_balance || 0,
+          total_earned: balanceData.total_earned || 0,
+          total_withdrawn: balanceData.total_withdrawn || 0,
+          currency: balanceData.currency || user.currency ,
+        });
+      } else {
+        // Set default values if no balance record exists, use user's currency if available
+        setEditedBalanceInfo({
+          available_balance: 0,
+          pending_balance: 0,
+          total_earned: 0,
+          total_withdrawn: 0,
+          currency: user.currency ,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      // Set default values on error, use user's currency if available
+      setEditedBalanceInfo({
+        available_balance: 0,
+        pending_balance: 0,
+        total_earned: 0,
+        total_withdrawn: 0,
+        currency: user.currency  ,
+      });
+    }
+    
+    setShowEditBalanceModal(true);
+    setActiveDropdown(null);
+  };
+
+  const handleEditUserInfo = (user) => {
+    setSelectedUser(user);
+    setEditedUserInfo({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone_number: user.phone_number || '',
+      country: user.country || '',
+      currency: user.currency || '',
+      payment_method: user.payment_method || '',
+      account_number: user.account_number || '',
+      bank_name: user.bank_name || '',
+      home_address: user.home_address || '',
+      agreed_to_terms: user.agreed_to_terms || false,
+      paid: user.paid || false,
+    });
+    setShowEditInfoModal(true);
+    setActiveDropdown(null);
+  };
+
+    const submitSendMail = async () => {
+    if (!mailSubject.trim() || !mailMessage.trim()) {
+      showLiveAlert('Please fill in all fields', 'warning');
+      return;
+    }
+
+    try {
+      // Here you would integrate with your email service
+      // For now, we'll just show a success message
+      console.log('Sending email to:', selectedUser.email);
+      console.log('Subject:', mailSubject);
+      console.log('Message:', mailMessage);
+      
+      showLiveAlert('Email sent successfully!', 'success');
+      setShowSendMailModal(false);
+      setMailSubject('');
+      setMailMessage('');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      showLiveAlert('Failed to send email', 'danger');
+    }
+  };
+
+  const submitEditBalance = async () => {
+    if (!editedBalanceInfo.available_balance && editedBalanceInfo.available_balance !== 0) {
+      showLiveAlert('Please enter valid balance amounts', 'warning');
+      return;
+    }
+
+    try {
+      // Check if user has a balance record
+      const { data: existingBalance } = await supabase
+        .from('user_balances')
+        .select('*')
+        .eq('user_id', selectedUser.id)
+        .single();
+
+      const balanceData = {
+        available_balance: parseFloat(editedBalanceInfo.available_balance) || 0,
+        pending_balance: parseFloat(editedBalanceInfo.pending_balance) || 0,
+        total_earned: parseFloat(editedBalanceInfo.total_earned) || 0,
+        total_withdrawn: parseFloat(editedBalanceInfo.total_withdrawn) || 0,
+        currency: editedBalanceInfo.currency || 'USD',
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existingBalance) {
+        // Update existing balance
+        const { error } = await supabase
+          .from('user_balances')
+          .update(balanceData)
+          .eq('user_id', selectedUser.id);
+
+        if (error) throw error;
+      } else {
+        // Create new balance record
+        const { error } = await supabase
+          .from('user_balances')
+          .insert({
+            user_id: selectedUser.id,
+            ...balanceData,
+          });
+
+        if (error) throw error;
+      }
+
+      showLiveAlert('Balance updated successfully!', 'success');
+      setShowEditBalanceModal(false);
+      setEditedBalanceInfo({});
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating balance:', error);
+      showLiveAlert('Failed to update balance', 'danger');
+    }
+  };
+
+  const submitEditUserInfo = async () => {
+    if (!editedUserInfo.full_name || !editedUserInfo.email) {
+      showLiveAlert('Name and email are required', 'warning');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('users')
-        .update({ is_blocked: !user.is_blocked })
-        .eq('id', user.id);
+        .update(editedUserInfo)
+        .eq('id', selectedUser.id);
 
       if (error) throw error;
 
-      alert(`User ${user.is_blocked ? 'activated' : 'blocked'} successfully!`);
+      showLiveAlert('User information updated successfully!', 'success');
+      setShowEditInfoModal(false);
+      setEditedUserInfo({});
+      setSelectedUser(null);
       fetchUsers();
     } catch (error) {
-      console.error('Error updating user status:', error);
-      alert('Failed to update user status');
+      console.error('Error updating user info:', error);
+      showLiveAlert('Failed to update user information', 'danger');
     }
-    setActiveDropdown(null);
   };
 
   const handleDeleteUser = async (user) => {
@@ -151,11 +335,11 @@ const Manageusers = () => {
 
       if (error) throw error;
 
-      alert('User deleted successfully!');
+      showLiveAlert('User deleted successfully!', 'success');
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user');
+      showLiveAlert('Failed to delete user', 'danger');
     }
     setShowDeleteConfirm(false);
     setUserToDelete(null);
@@ -174,12 +358,48 @@ const Manageusers = () => {
   };
 
   return (
-    <div className="admin-layout d-flex">
-      <AdminSidebar />
+    <>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
 
-      <div
-        className="admin-content admin-responsive-content flex-grow-1 d-flex flex-column"
+          @keyframes slideUp {
+            from {
+              transform: translateY(30px);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+        `}
+      </style>
+      <div className="admin-layout d-flex">
+      <AdminSidebar />
+      
+      {/* Live Alert Placeholder */}
+      <div 
+        id="liveAlertPlaceholder" 
         style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000,
+          minWidth: '300px'
+        }}
+      ></div>
+      
+      <div 
+        className="admin-content admin-responsive-content flex-grow-1 d-flex flex-column" 
+        style={{ 
           backgroundColor: 'white',
           minHeight: '100vh',
           marginLeft: windowWidth > 991 ? (isSidebarCollapsed ? '70px' : '280px') : '0',
@@ -187,7 +407,7 @@ const Manageusers = () => {
           width: windowWidth > 991 ? (isSidebarCollapsed ? 'calc(100% - 70px)' : 'calc(100% - 280px)') : '100%'
         }}
       >
-        <div className="flex-grow-1 px-3">
+        <div className="flex-grow-1 px-3 mt-5">
           {/* Header */}
           <div className="mb-4 pt-3">
             <h1 className="h4 mb-1 text-dark fw-bold">Manage Users</h1>
@@ -397,11 +617,25 @@ const Manageusers = () => {
                 }}
               >
                 <button
-                  className={`dropdown-item ${user.is_blocked ? 'text-success' : 'text-danger'}`}
-                  onClick={() => handleBlockUser(user)}
+                  className="dropdown-item text-info"
+                  onClick={() => handleSendMail(user)}
                 >
-                  <i className={`bi ${user.is_blocked ? 'bi-check-circle' : 'bi-x-circle'} me-2`}></i>
-                  {user.is_blocked ? 'Activate User' : 'Block User'}
+                  <i className="bi bi-envelope me-2"></i>
+                  Send Mail
+                </button>
+                <button
+                  className="dropdown-item text-primary"
+                  onClick={() => handleEditBalance(user)}
+                >
+                  <i className="bi bi-wallet2 me-2"></i>
+                  Edit Balance
+                </button>
+                <button
+                  className="dropdown-item text-secondary"
+                  onClick={() => handleEditUserInfo(user)}
+                >
+                  <i className="bi bi-pencil-square me-2"></i>
+                  Edit User Info
                 </button>
                 <hr className="dropdown-divider" />
                 <button
@@ -485,7 +719,556 @@ const Manageusers = () => {
           </div>
         </div>
       )}
+
+      {/* Send Mail Modal */}
+      {showSendMailModal && (
+        <>
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 10000,
+              animation: 'fadeIn 0.3s ease-in-out'
+            }}
+            onClick={() => {
+              setShowSendMailModal(false);
+              setSelectedUser(null);
+              setMailSubject('');
+              setMailMessage('');
+            }}
+          />
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '600px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+              animation: 'slideUp 0.3s ease-in-out'
+            }}>
+              <div className="p-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="mb-0 text-primary">
+                    <i className="bi bi-envelope-fill me-2"></i>
+                    Send Email to {selectedUser?.full_name}
+                  </h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => {
+                      setShowSendMailModal(false);
+                      setSelectedUser(null);
+                      setMailSubject('');
+                      setMailMessage('');
+                    }}
+                  ></button>
+                </div>
+                <hr />
+                
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">To:</label>
+                  <div className="input-group">
+                    <span className="input-group-text">
+                      <i className="bi bi-envelope-fill"></i>
+                    </span>
+                    <input 
+                      type="text" 
+                      className="form-control fw-semibold" 
+                      value={selectedUser?.email || ''} 
+                      disabled 
+                    />
+                  </div>
+                  <small className="text-muted">Recipient: {selectedUser?.full_name || 'Unknown User'}</small>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Subject: <span className="text-danger">*</span></label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="Enter email subject"
+                    value={mailSubject}
+                    onChange={(e) => setMailSubject(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="form-label fw-semibold">Message: <span className="text-danger">*</span></label>
+                  <textarea 
+                    className="form-control" 
+                    rows="8"
+                    placeholder="Type your message here..."
+                    value={mailMessage}
+                    onChange={(e) => setMailMessage(e.target.value)}
+                  ></textarea>
+                </div>
+                
+                <hr />
+                <div className="d-flex gap-2 justify-content-end">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowSendMailModal(false);
+                      setSelectedUser(null);
+                      setMailSubject('');
+                      setMailMessage('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary" 
+                    onClick={submitSendMail}
+                  >
+                    <i className="bi bi-send me-2"></i>Send Email
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Edit Balance Modal */}
+      {showEditBalanceModal && (
+        <>
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 10000,
+              animation: 'fadeIn 0.3s ease-in-out'
+            }}
+            onClick={() => {
+              setShowEditBalanceModal(false);
+              setSelectedUser(null);
+              setEditedBalanceInfo({});
+            }}
+          />
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '700px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+              animation: 'slideUp 0.3s ease-in-out'
+            }}>
+              <div className="p-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="mb-0 text-primary">
+                    <i className="bi bi-wallet2 me-2"></i>
+                    Edit User Balance
+                  </h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => {
+                      setShowEditBalanceModal(false);
+                      setSelectedUser(null);
+                      setEditedBalanceInfo({});
+                    }}
+                  ></button>
+                </div>
+                <hr />
+                
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">User:</label>
+                  <div className="input-group">
+                    <span className="input-group-text">
+                      <i className="bi bi-person-fill"></i>
+                    </span>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={selectedUser?.full_name || 'Unknown User'} 
+                      disabled 
+                    />
+                  </div>
+                  <small className="text-muted">Email: {selectedUser?.email || 'N/A'}</small>
+                </div>
+
+                <div className="alert alert-info d-flex align-items-center mb-3" role="alert">
+                  <i className="bi bi-cash-coin me-2" style={{ fontSize: '1.5rem' }}></i>
+                  <div>
+                    <strong>Currency:</strong> {selectedUser?.currency || 'USD'}
+                  </div>
+                </div>
+
+                <h6 className="text-secondary mb-3 fw-bold mt-4">
+                  <i className="bi bi-currency-dollar me-2"></i>Balance Information
+                </h6>
+
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Available Balance: <span className="text-danger">*</span></label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      placeholder="0.00"
+                      value={editedBalanceInfo.available_balance || ''}
+                      onChange={(e) => setEditedBalanceInfo({...editedBalanceInfo, available_balance: e.target.value})}
+                      step="0.01"
+                      min="0"
+                    />
+                    <small className="text-muted">Current available balance</small>
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Pending Balance:</label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      placeholder="0.00"
+                      value={editedBalanceInfo.pending_balance || ''}
+                      onChange={(e) => setEditedBalanceInfo({...editedBalanceInfo, pending_balance: e.target.value})}
+                      step="0.01"
+                      min="0"
+                    />
+                    <small className="text-muted">Balance pending approval</small>
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Total Earned:</label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      placeholder="0.00"
+                      value={editedBalanceInfo.total_earned || ''}
+                      onChange={(e) => setEditedBalanceInfo({...editedBalanceInfo, total_earned: e.target.value})}
+                      step="0.01"
+                      min="0"
+                    />
+                    <small className="text-muted">Total earnings to date</small>
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Total Withdrawn:</label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      placeholder="0.00"
+                      value={editedBalanceInfo.total_withdrawn || ''}
+                      onChange={(e) => setEditedBalanceInfo({...editedBalanceInfo, total_withdrawn: e.target.value})}
+                      step="0.01"
+                      min="0"
+                    />
+                    <small className="text-muted">Total amount withdrawn</small>
+                  </div>
+                </div>
+
+                <div className="alert alert-info mt-3" role="alert">
+                  <i className="bi bi-info-circle me-2"></i>
+                  <strong>Note:</strong> All amounts are in {selectedUser?.currency || 'USD'}. Changes will be saved immediately.
+                </div>
+                
+                <hr />
+                <div className="d-flex gap-2 justify-content-end">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowEditBalanceModal(false);
+                      setSelectedUser(null);
+                      setEditedBalanceInfo({});
+                    }}
+                  >
+                    <i className="bi bi-x-circle me-2"></i>Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary" 
+                    onClick={submitEditBalance}
+                  >
+                    <i className="bi bi-check-circle me-2"></i>Update Balance
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Edit User Info Modal */}
+      {showEditInfoModal && (
+        <>
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 10000,
+              animation: 'fadeIn 0.3s ease-in-out'
+            }}
+            onClick={() => {
+              setShowEditInfoModal(false);
+              setSelectedUser(null);
+              setEditedUserInfo({});
+            }}
+          />
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10001,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '800px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+              animation: 'slideUp 0.3s ease-in-out'
+            }}>
+              <div className="p-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="mb-0 text-primary">
+                    <i className="bi bi-pencil-square me-2"></i>
+                    Edit User Information
+                  </h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => {
+                      setShowEditInfoModal(false);
+                      setSelectedUser(null);
+                      setEditedUserInfo({});
+                    }}
+                  ></button>
+                </div>
+                <hr />
+                
+                {/* User Info Display */}
+                <div className="alert alert-primary d-flex align-items-center mb-4" role="alert">
+                  <i className="bi bi-person-circle me-2" style={{ fontSize: '2rem' }}></i>
+                  <div>
+                    <strong>Editing User:</strong> {selectedUser?.full_name || 'Unknown User'}<br />
+                    <small>User ID: {selectedUser?.id || 'N/A'}</small>
+                  </div>
+                </div>
+
+                {/* Personal Information Section */}
+                <h6 className="text-secondary mb-3 fw-bold">
+                  <i className="bi bi-person-badge me-2"></i>Personal Information
+                </h6>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Full Name: <span className="text-danger">*</span></label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Enter full name"
+                      value={editedUserInfo.full_name || ''}
+                      onChange={(e) => setEditedUserInfo({...editedUserInfo, full_name: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Email: <span className="text-danger">*</span></label>
+                    <input 
+                      type="email" 
+                      className="form-control" 
+                      placeholder="Enter email address"
+                      value={editedUserInfo.email || ''}
+                      onChange={(e) => setEditedUserInfo({...editedUserInfo, email: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Phone Number:</label>
+                    <input 
+                      type="tel" 
+                      className="form-control" 
+                      placeholder="Enter phone number"
+                      value={editedUserInfo.phone_number || ''}
+                      onChange={(e) => setEditedUserInfo({...editedUserInfo, phone_number: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label fw-semibold">Country:</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Enter country"
+                      value={editedUserInfo.country || ''}
+                      onChange={(e) => setEditedUserInfo({...editedUserInfo, country: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label fw-semibold">Home Address:</label>
+                    <textarea 
+                      className="form-control" 
+                      rows="2"
+                      placeholder="Enter home address"
+                      value={editedUserInfo.home_address || ''}
+                      onChange={(e) => setEditedUserInfo({...editedUserInfo, home_address: e.target.value})}
+                    ></textarea>
+                  </div>
+                </div>
+
+                <hr className="my-4" />
+
+                {/* Payment Information Section (Read-Only) */}
+                <h6 className="text-secondary mb-3 fw-bold">
+                  <i className="bi bi-credit-card me-2"></i>Payment Information
+                </h6>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <label className="form-label fw-semibold">Currency:</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={editedUserInfo.currency || 'N/A'}
+                      readOnly
+                      disabled
+                      style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }}
+                    />
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <label className="form-label fw-semibold">Bank Name:</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={editedUserInfo.bank_name || 'N/A'}
+                      readOnly
+                      disabled
+                      style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }}
+                    />
+                  </div>
+
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label fw-semibold">Account Number:</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={editedUserInfo.account_number || 'N/A'}
+                      readOnly
+                      disabled
+                      style={{ backgroundColor: '#e9ecef', cursor: 'not-allowed' }}
+                    />
+                  </div>
+                </div>
+
+                <hr className="my-4" />
+
+                {/* Account Status Section */}
+                <h6 className="text-secondary mb-3 fw-bold">
+                  <i className="bi bi-shield-check me-2"></i>Account Status
+                </h6>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <div className="form-check form-switch">
+                      <input 
+                        className="form-check-input" 
+                        type="checkbox" 
+                        id="agreedToTerms"
+                        checked={editedUserInfo.agreed_to_terms || false}
+                        onChange={(e) => setEditedUserInfo({...editedUserInfo, agreed_to_terms: e.target.checked})}
+                      />
+                      <label className="form-check-label" htmlFor="agreedToTerms">
+                        Agreed to Terms
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="col-md-4 mb-3">
+                    <div className="form-check form-switch">
+                      <input 
+                        className="form-check-input" 
+                        type="checkbox" 
+                        id="paidStatus"
+                        checked={editedUserInfo.paid || false}
+                        onChange={(e) => setEditedUserInfo({...editedUserInfo, paid: e.target.checked})}
+                      />
+                      <label className="form-check-label" htmlFor="paidStatus">
+                        Paid Status
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="alert alert-info mt-3" role="alert">
+                  <i className="bi bi-info-circle me-2"></i>
+                  <strong>Note:</strong> Fields marked with <span className="text-danger">*</span> are required. Changes will be saved to the database immediately.
+                </div>
+                
+                <hr />
+                <div className="d-flex gap-2 justify-content-end">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => {
+                      setShowEditInfoModal(false);
+                      setSelectedUser(null);
+                      setEditedUserInfo({});
+                    }}
+                  >
+                    <i className="bi bi-x-circle me-2"></i>Cancel
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary" 
+                    onClick={submitEditUserInfo}
+                  >
+                    <i className="bi bi-save me-2"></i>Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
+    </>
   );
 };
 

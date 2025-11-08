@@ -15,6 +15,7 @@ const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [copiedLinks, setCopiedLinks] = useState({});
   const [loading, setLoading] = useState(true);
+  const [referralLink, setReferralLink] = useState('');
   
   console.log('Products state - loading:', loading, 'courses count:', courses.length, 'user:', user?.id);
 
@@ -67,7 +68,15 @@ const { user } = useAuth();
     };
 
     loadData();
-  }, [user?.id, fetchCourses]);
+  }, [fetchCourses]);
+
+  // Generate referral link
+  useEffect(() => {
+    if (user?.id) {
+      const baseUrl = window.location.origin;
+      setReferralLink(`${baseUrl}/register?ref=${user.id}`);
+    }
+  }, [user?.id]);
 
   // Handle Get Started - Navigate to program access for course enrollment
   const handleGetStarted = (course) => {
@@ -75,25 +84,24 @@ const { user } = useAuth();
     navigate('/dashboard/program-access', { state: { selectedCourse: course } });
   };
 
-  // Generate referral link for course
-  const generateReferralLink = (courseId) => {
-    return `${window.location.origin}/course/${courseId}?ref=${user?.id}`;
-  };
-
   // Copy referral link to clipboard
-  const copyReferralLink = (courseId) => {
-    const referralLink = generateReferralLink(courseId);
+  const copyReferralLink = () => {
+    if (!referralLink) {
+      console.warn('No referral link available');
+      return;
+    }
+    
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopiedLinks(prev => ({
         ...prev,
-        [courseId]: true
+        'main': true
       }));
       
       // Reset copied state after 3 seconds
       setTimeout(() => {
         setCopiedLinks(prev => ({
           ...prev,
-          [courseId]: false
+          'main': false
         }));
       }, 3000);
     });
@@ -204,16 +212,17 @@ const { user } = useAuth();
                                   <input
                                     type="text"
                                     className="form-control"
-                                    value={generateReferralLink(course.id)}
+                                    value={referralLink || 'Loading...'}
                                     readOnly
                                     style={{ fontSize: '10px' }}
                                   />
                                   <button 
-                                    className={`btn ${copiedLinks[course.id] ? 'btn-success' : 'btn-outline-secondary'}`}
-                                    onClick={() => copyReferralLink(course.id)}
+                                    className={`btn ${copiedLinks['main'] ? 'btn-success' : 'btn-outline-secondary'}`}
+                                    onClick={() => copyReferralLink()}
                                     title="Copy Link"
+                                    disabled={!referralLink}
                                   >
-                                    <i className={`bi ${copiedLinks[course.id] ? 'bi-check-lg' : 'bi-copy'}`}></i>
+                                    <i className={`bi ${copiedLinks['main'] ? 'bi-check-lg' : 'bi-copy'}`}></i>
                                   </button>
                                 </div>
                               </td>

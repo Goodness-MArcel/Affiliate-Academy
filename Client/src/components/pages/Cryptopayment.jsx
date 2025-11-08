@@ -1,0 +1,365 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../../supabase';
+import { useAuth } from '../../context/AuthProvider';
+
+const Cryptopayment = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [walletName, setWalletName] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [paymentProof, setPaymentProof] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+
+  // Live Alert Function
+  const showLiveAlert = (message, type = 'success') => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    if (!alertPlaceholder) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : type === 'danger' ? 'exclamation-triangle-fill' : 'info-circle-fill'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+
+    alertPlaceholder.append(wrapper);
+
+    setTimeout(() => {
+      wrapper.remove();
+    }, 5000);
+  };
+
+  // Fetch wallet details from system settings
+  useEffect(() => {
+    const fetchWalletDetails = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('system_settings')
+          .select('wallet_name, wallet_address')
+          .single();
+
+        if (error && error.code !== 'PGRST116') throw error;
+
+        if (data) {
+          setWalletName(data.wallet_name || 'Crypto Wallet');
+          setWalletAddress(data.wallet_address || '');
+        } else {
+          // No settings found - show message
+          showLiveAlert('Wallet information not configured yet. Please contact admin.', 'warning');
+        }
+      } catch (error) {
+        console.error('Error fetching wallet details:', error);
+        showLiveAlert('Failed to load wallet information. Please try again.', 'danger');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWalletDetails();
+  }, []);
+
+  // Copy wallet address to clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(walletAddress).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    });
+  };
+
+  // Handle file selection
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showLiveAlert('Please select an image file', 'warning');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showLiveAlert('File size must be less than 5MB', 'warning');
+        return;
+      }
+
+      setPaymentProof(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove selected file
+  const removeFile = () => {
+    setPaymentProof(null);
+    setPreviewUrl('');
+  };
+
+  // Submit payment proof
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!paymentProof) {
+      showLiveAlert('Please upload payment proof', 'warning');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      // Upload payment proof to Supabase Storage
+      const fileExt = paymentProof.name.split('.').pop();
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+      const filePath = `payment-proofs/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('payment-proofs')
+        .upload(filePath, paymentProof);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('payment-proofs')
+        .getPublicUrl(filePath);
+
+      // Save payment record to database
+      const { error: insertError } = await supabase
+        .from('crypto_payments')
+        .insert([
+          {
+            user_id: user.id,
+            wallet_name: walletName,
+            wallet_address: walletAddress,
+            payment_proof_url: urlData.publicUrl,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (insertError) throw insertError;
+
+      showLiveAlert('Payment proof submitted successfully! We will verify and update your account shortly.', 'success');
+      
+      // Delay navigation to show the success message
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting payment:', error);
+      showLiveAlert('Failed to submit payment proof. Please try again.', 'danger');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-vh-100 d-flex align-items-center justify-content-center" 
+        style={{ background: 'linear-gradient(135deg, #198754 0%, #20c997 100%)' }}>
+        <div className="text-center text-white">
+          <div className="spinner-border" role="status" style={{ width: '3rem', height: '3rem' }}>
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3 fs-5">Loading wallet information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-vh-100 d-flex align-items-center justify-content-center py-4 px-3" 
+      style={{ 
+        background: 'linear-gradient(135deg, #198754 0%, #20c997 100%)',
+        position: 'relative'
+      }}>
+      
+      {/* Background Pattern */}
+      <div style={{
+        content: '',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px)',
+        pointerEvents: 'none'
+      }}></div>
+
+      {/* Live Alert Placeholder */}
+      <div 
+        id="liveAlertPlaceholder" 
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000,
+          minWidth: '300px'
+        }}
+      ></div>
+
+      <div className="container" style={{ maxWidth: '700px', position: 'relative', zIndex: 1 }}>
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="btn btn-link text-white text-decoration-none mb-3 p-0 d-inline-flex align-items-center"
+          style={{ fontSize: '0.95rem', fontWeight: 500, gap: '8px' }}
+        >
+          <i className="bi bi-arrow-left"></i>
+          Back
+        </button>
+
+        {/* Main Card */}
+        <div className="card border-0 shadow-lg" style={{ borderRadius: '20px' }}>
+          <div className="card-body p-4 p-md-5">
+            {/* Header */}
+            <div className="text-center mb-4">
+              <div className="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle mb-3"
+                style={{ width: '70px', height: '70px' }}>
+                <i className="bi bi-coin text-success" style={{ fontSize: '2rem' }}></i>
+              </div>
+              <h2 className="fw-bold mb-2">Cryptocurrency Payment</h2>
+              <p className="text-muted mb-0">Complete your payment using cryptocurrency</p>
+            </div>
+
+            {/* Alert */}
+            <div className="alert alert-info d-flex align-items-start mb-4">
+              <i className="bi bi-info-circle-fill me-2 mt-1 flex-shrink-0"></i>
+              <div>
+                <strong>Important:</strong> Send the exact payment amount to the wallet address below and upload your payment proof.
+              </div>
+            </div>
+
+            {/* Wallet Information */}
+            <div className="bg-light rounded-3 p-4 mb-4">
+              <div className="d-inline-block bg-success text-white px-3 py-2 rounded-pill mb-3">
+                <i className="bi bi-wallet2 me-2"></i>
+                <strong>{walletName}</strong>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Wallet Address</label>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className="form-control bg-white"
+                    value={walletAddress}
+                    readOnly
+                    style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}
+                  />
+                  <button
+                    type="button"
+                    className={`btn ${copied ? 'btn-success' : 'btn-outline-success'}`}
+                    onClick={copyToClipboard}
+                  >
+                    <i className={`bi ${copied ? 'bi-check-lg' : 'bi-clipboard'} me-1`}></i>
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                <small className="text-muted d-block mt-1">
+                  Click the copy button to copy the wallet address
+                </small>
+              </div>
+            </div>
+
+            {/* Payment Form */}
+            <form onSubmit={handleSubmit}>
+              <h5 className="fw-bold mb-3 pb-2 border-bottom">
+                <i className="bi bi-upload me-2 text-success"></i>
+                Submit Payment Proof
+              </h5>
+
+              {/* Upload Payment Proof */}
+              <div className="mb-4">
+                <label className="form-label fw-bold">
+                  Payment Proof (Screenshot) <span className="text-danger">*</span>
+                </label>
+                
+                {!paymentProof ? (
+                  <div 
+                    className="border border-2 border-dashed rounded-3 p-5 text-center bg-light"
+                    style={{ cursor: 'pointer', borderColor: '#dee2e6' }}
+                    onClick={() => document.getElementById('paymentProof').click()}
+                  >
+                    <input
+                      type="file"
+                      id="paymentProof"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      hidden
+                    />
+                    <i className="bi bi-cloud-upload text-success d-block mb-3" style={{ fontSize: '3rem' }}></i>
+                    <p className="fw-semibold mb-1">Click to upload payment screenshot</p>
+                    <small className="text-muted">PNG, JPG, JPEG (Max 5MB)</small>
+                  </div>
+                ) : (
+                  <div className="position-relative border rounded-3 overflow-hidden">
+                    <img src={previewUrl} alt="Payment Proof" className="w-100" style={{ maxHeight: '400px', objectFit: 'contain', background: '#f5f5f5' }} />
+                    <button
+                      type="button"
+                      className="btn btn-danger position-absolute top-0 end-0 m-2"
+                      onClick={removeFile}
+                    >
+                      <i className="bi bi-x-circle me-1"></i>
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Instructions */}
+              <div className="alert alert-warning d-flex align-items-start mb-4">
+                <i className="bi bi-exclamation-triangle-fill me-2 mt-1 flex-shrink-0"></i>
+                <div>
+                  <strong>Before submitting:</strong>
+                  <ul className="mb-0 mt-2 ps-3">
+                    <li>Ensure you've sent the payment to the correct wallet address</li>
+                    <li>Upload a clear screenshot of your transaction</li>
+                    <li>Payment verification may take 24-48 hours</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="d-grid">
+                <button
+                  type="submit"
+                  className="btn btn-success btn-lg"
+                  disabled={submitting || !paymentProof}
+                  style={{ 
+                    background: 'linear-gradient(135deg, #198754 0%, #20c997 100%)',
+                    border: 'none',
+                    fontWeight: 600
+                  }}
+                >
+                  {submitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      Submit Payment Proof
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};export default Cryptopayment;

@@ -31,6 +31,27 @@ const CourseManagement = () => {
     course_video: ''
   });
 
+  // Live Alert Function
+  const showLiveAlert = (message, type = 'success') => {
+    const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+    if (!alertPlaceholder) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+
+    alertPlaceholder.append(wrapper);
+
+    setTimeout(() => {
+      wrapper.remove();
+    }, 5000);
+  };
+
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
@@ -56,6 +77,7 @@ const CourseManagement = () => {
       
       return () => observer.disconnect();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCourses = async () => {
@@ -70,7 +92,7 @@ const CourseManagement = () => {
       setCourses(data || []);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      alert('Failed to fetch courses');
+      showLiveAlert('Failed to fetch courses', 'danger');
     } finally {
       setLoading(false);
     }
@@ -91,14 +113,14 @@ const CourseManagement = () => {
     // Validate file type
     const validTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
     if (!validTypes.includes(file.type)) {
-      alert('Please upload a valid video file (MP4, WebM, OGG, or MOV)');
+      showLiveAlert('Please upload a valid video file (MP4, WebM, OGG, or MOV)', 'danger');
       return;
     }
 
     // Validate file size (max 100MB)
     const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
-      alert('Video file size must be less than 100MB');
+      showLiveAlert('Video file size must be less than 100MB', 'danger');
       return;
     }
 
@@ -132,7 +154,7 @@ const CourseManagement = () => {
       alert('Video uploaded successfully!');
     } catch (error) {
       console.error('Error uploading video:', error);
-      alert('Failed to upload video: ' + error.message);
+      showLiveAlert('Failed to upload video: ' + error.message, 'danger');
       setVideoFile(null);
     } finally {
       setUploading(false);
@@ -172,7 +194,7 @@ const CourseManagement = () => {
 
       if (error) throw error;
 
-      alert('Course added successfully!');
+      showLiveAlert('Course added successfully!', 'success');
       setFormData({
         title: '',
         description: '',
@@ -188,7 +210,7 @@ const CourseManagement = () => {
       fetchCourses();
     } catch (error) {
       console.error('Error adding course:', error);
-      alert('Failed to add course: ' + error.message);
+      showLiveAlert('Failed to add course: ' + error.message, 'danger');
     } finally {
       setLoading(false);
     }
@@ -239,13 +261,13 @@ const CourseManagement = () => {
 
       if (error) throw error;
 
-      alert('Course updated successfully!');
+      showLiveAlert('Course updated successfully!', 'success');
       setShowEditModal(false);
       setSelectedCourse(null);
       fetchCourses();
     } catch (error) {
       console.error('Error updating course:', error);
-      alert('Failed to update course: ' + error.message);
+      showLiveAlert('Failed to update course: ' + error.message, 'danger');
     } finally {
       setLoading(false);
     }
@@ -254,6 +276,18 @@ const CourseManagement = () => {
   return (
     <div className="admin-layout d-flex">
       <AdminSidebar />
+      
+      {/* Live Alert Placeholder */}
+      <div 
+        id="liveAlertPlaceholder" 
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          zIndex: 10000,
+          minWidth: '300px'
+        }}
+      ></div>
       
       <div 
         className="admin-content admin-responsive-content flex-grow-1 d-flex flex-column" 
