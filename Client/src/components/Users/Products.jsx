@@ -15,6 +15,7 @@ const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [copiedLinks, setCopiedLinks] = useState({});
   const [loading, setLoading] = useState(true);
+  const [referralLink, setReferralLink] = useState('');
   
   console.log('Products state - loading:', loading, 'courses count:', courses.length, 'user:', user?.id);
 
@@ -55,6 +56,22 @@ const { user } = useAuth();
         console.log('Loading products data...');
         setLoading(true);
         
+        // Fetch user profile to get referral link
+        if (user?.id) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('users')
+            .select('referral_link')
+            .eq('id', user.id)
+            .single();
+          
+          if (profileError) {
+            console.error('Error fetching user profile:', profileError);
+          } else if (profileData) {
+            setReferralLink(profileData.referral_link || '');
+            console.log('User referral link:', profileData.referral_link);
+          }
+        }
+        
         // Fetch courses from Supabase database
         await fetchCourses();
         
@@ -75,25 +92,24 @@ const { user } = useAuth();
     navigate('/dashboard/program-access', { state: { selectedCourse: course } });
   };
 
-  // Generate referral link for course
-  const generateReferralLink = (courseId) => {
-    return `${window.location.origin}/register${courseId}?ref=${user?.id}`;
-  };
-
   // Copy referral link to clipboard
-  const copyReferralLink = (courseId) => {
-    const referralLink = generateReferralLink(courseId);
+  const copyReferralLink = () => {
+    if (!referralLink) {
+      console.warn('No referral link available');
+      return;
+    }
+    
     navigator.clipboard.writeText(referralLink).then(() => {
       setCopiedLinks(prev => ({
         ...prev,
-        [courseId]: true
+        'main': true
       }));
       
       // Reset copied state after 3 seconds
       setTimeout(() => {
         setCopiedLinks(prev => ({
           ...prev,
-          [courseId]: false
+          'main': false
         }));
       }, 3000);
     });
@@ -204,16 +220,17 @@ const { user } = useAuth();
                                   <input
                                     type="text"
                                     className="form-control"
-                                    value={generateReferralLink(course.id)}
+                                    value={referralLink || 'Loading...'}
                                     readOnly
                                     style={{ fontSize: '10px' }}
                                   />
                                   <button 
-                                    className={`btn ${copiedLinks[course.id] ? 'btn-success' : 'btn-outline-secondary'}`}
-                                    onClick={() => copyReferralLink(course.id)}
+                                    className={`btn ${copiedLinks['main'] ? 'btn-success' : 'btn-outline-secondary'}`}
+                                    onClick={() => copyReferralLink()}
                                     title="Copy Link"
+                                    disabled={!referralLink}
                                   >
-                                    <i className={`bi ${copiedLinks[course.id] ? 'bi-check-lg' : 'bi-copy'}`}></i>
+                                    <i className={`bi ${copiedLinks['main'] ? 'bi-check-lg' : 'bi-copy'}`}></i>
                                   </button>
                                 </div>
                               </td>
