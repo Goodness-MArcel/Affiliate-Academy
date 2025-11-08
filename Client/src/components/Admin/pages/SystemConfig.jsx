@@ -18,6 +18,10 @@ const SystemConfig = () => {
     paystack_public_key: '',
     paystack_secret_key: '',
     
+    // Wallet Settings
+    wallet_address: '',
+    wallet_name: '',
+    
     // Email Settings
     smtp_host: '',
     smtp_port: '',
@@ -90,6 +94,8 @@ const SystemConfig = () => {
           referral_commission_type: data.referral_commission_type || 'percentage',
           paystack_public_key: data.paystack_public_key || '',
           paystack_secret_key: data.paystack_secret_key || '',
+          wallet_address: data.wallet_address || '',
+          wallet_name: data.wallet_name || '',
           smtp_host: data.smtp_host || '',
           smtp_port: data.smtp_port?.toString() || '',
           smtp_username: data.smtp_username || '',
@@ -123,6 +129,8 @@ const SystemConfig = () => {
         referral_commission_type: settings.referral_commission_type,
         paystack_public_key: settings.paystack_public_key,
         paystack_secret_key: settings.paystack_secret_key,
+        wallet_address: settings.wallet_address,
+        wallet_name: settings.wallet_name,
         smtp_host: settings.smtp_host,
         smtp_port: parseInt(settings.smtp_port) || 587,
         smtp_username: settings.smtp_username,
@@ -216,7 +224,7 @@ const SystemConfig = () => {
                   <div className="row g-3">
                     <div className="col-md-12">
                       <label className="form-label fw-bold text-dark">
-                        Default Referral Commission <span className="text-danger">*</span>
+                        Default Referral Commission
                       </label>
                       <input
                         type="number"
@@ -226,7 +234,6 @@ const SystemConfig = () => {
                         onChange={handleInputChange}
                         placeholder="e.g., 10"
                         step="0.01"
-                        required
                       />
                       <small className="text-muted">
                         Commission earned when user registers through referral link
@@ -253,7 +260,7 @@ const SystemConfig = () => {
                   <div className="row g-3">
                     <div className="col-md-6">
                       <label className="form-label fw-bold text-dark">
-                        Paystack Public Key <span className="text-danger">*</span>
+                        Paystack Public Key
                       </label>
                       <input
                         type="text"
@@ -270,7 +277,7 @@ const SystemConfig = () => {
 
                     <div className="col-md-6">
                       <label className="form-label fw-bold text-dark">
-                        Paystack Secret Key <span className="text-danger">*</span>
+                        Paystack Secret Key
                       </label>
                       <input
                         type="password"
@@ -291,6 +298,57 @@ const SystemConfig = () => {
                         <strong>Security Notice:</strong> Never share your secret key publicly. 
                         Always use environment variables in production.
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/*User Wallet Address Crypto Payment*/}
+              
+
+              {/* Email Settings Section */}
+              <div className="card shadow-sm mb-4" style={{ backgroundColor: 'white' }}>
+                <div className="card-body">
+                  <h5 className="fw-bold text-dark mb-3">
+                    <i className="bi bi-wallet2 me-2 text-primary"></i>
+                    User Wallet Address
+                  </h5>
+                  <div className="alert alert-info">
+                    <i className="bi bi-info-circle me-2"></i>
+                    Users can receive payments in their crypto wallets.
+                  </div>
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold text-dark">
+                        Wallet Name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="wallet_name"
+                        value={settings.wallet_name}
+                        onChange={handleInputChange}
+                        placeholder="e.g., USDT TRC20"
+                      />
+                      <small className="text-muted">
+                        Name/Type of the wallet (e.g., Bitcoin, Ethereum, USDT)
+                      </small>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold text-dark">
+                        Wallet Address
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="wallet_address"
+                        value={settings.wallet_address}
+                        onChange={handleInputChange}
+                        placeholder="Enter your wallet address"
+                      />
+                      <small className="text-muted">
+                        Your cryptocurrency wallet address
+                      </small>
                     </div>
                   </div>
                 </div>

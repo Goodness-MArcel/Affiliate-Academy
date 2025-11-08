@@ -15,6 +15,7 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import ForgotPassword from './components/pages/ForgotPassword.jsx';
 import ResetPassword from './components/pages/Resetpassword.jsx';
+import CryptoPayment from './components/pages/CryptoPayment.jsx';
 
 import Dashboard from './components/Users/Dashboard.jsx';
 import Profile from './components/Users/Profile.jsx';
@@ -79,6 +80,8 @@ const Layout = () => {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
+          <Route path="/crypto-payment" element={<CryptoPayment />} />
+          
 
           {/* ==================== Protected User Routes ==================== */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -56,22 +56,6 @@ const { user } = useAuth();
         console.log('Loading products data...');
         setLoading(true);
         
-        // Fetch user profile to get referral link
-        if (user?.id) {
-          const { data: profileData, error: profileError } = await supabase
-            .from('users')
-            .select('referral_link')
-            .eq('id', user.id)
-            .single();
-          
-          if (profileError) {
-            console.error('Error fetching user profile:', profileError);
-          } else if (profileData) {
-            setReferralLink(profileData.referral_link || '');
-            console.log('User referral link:', profileData.referral_link);
-          }
-        }
-        
         // Fetch courses from Supabase database
         await fetchCourses();
         
@@ -84,7 +68,15 @@ const { user } = useAuth();
     };
 
     loadData();
-  }, [user?.id, fetchCourses]);
+  }, [fetchCourses]);
+
+  // Generate referral link
+  useEffect(() => {
+    if (user?.id) {
+      const baseUrl = window.location.origin;
+      setReferralLink(`${baseUrl}/register?ref=${user.id}`);
+    }
+  }, [user?.id]);
 
   // Handle Get Started - Navigate to program access for course enrollment
   const handleGetStarted = (course) => {
