@@ -5,13 +5,14 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthProvider.jsx'  // ← NEW
+import { AdminProvider } from './context/AdminContext.jsx'  // ← NEW
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-   
-      <AuthProvider>
+    <AuthProvider>
+      <AdminProvider>
         <App />
-      </AuthProvider>
-
+      </AdminProvider>
+    </AuthProvider>
   </StrictMode>,
 )

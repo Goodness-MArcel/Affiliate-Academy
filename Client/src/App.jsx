@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import { supabase } from '../supabase.js';
 import Nav from './components/Layout/Nav.jsx';
 import Footer from './components/Layout/Footer.jsx';
@@ -35,9 +35,8 @@ import AddEstate from './components/Admin/pages/AddEstate.jsx';
 import SystemConfig from './components/Admin/pages/SystemConfig.jsx';
 
 import { ProtectedRoute } from './components/ProtectedRoute.jsx';
-import { AdminProtectedRoute } from './components/Admin/AdminProtectedRoute.jsx';
 import { useAuth } from './context/AuthProvider';  // ← NEW: useAuth instead of useUser
-
+import AdminProtected from './components/Admin/AdminProtected.jsx';
 // ============================================================
 // Layout Component
 // ============================================================
@@ -62,6 +61,7 @@ const Layout = () => {
     location.pathname.startsWith('/dashboard') ||
     location.pathname.startsWith('/admin/');
 
+
   return (
     <div className="d-flex flex-column min-vh-100">
       {!hideNavAndFooter && <Nav />}
@@ -81,7 +81,7 @@ const Layout = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Terms />} />
           <Route path="/crypto-payment" element={<CryptoPayment />} />
-          
+
 
           {/* ==================== Protected User Routes ==================== */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -98,51 +98,52 @@ const Layout = () => {
           <Route
             path="/admin/dashboard"
             element={
-              <AdminProtectedRoute>
+
+              <AdminProtected>
                 <AdminDashboard />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
 
           <Route
             path="/admin/users/all"
             element={
-              <AdminProtectedRoute>
+              <AdminProtected>
                 <ManageUsers />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
           <Route
             path="/admin/courses/upload"
             element={
-              <AdminProtectedRoute>
+              <AdminProtected>
                 <CourseManagement />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
 
           <Route
             path="/admin/payments"
             element={
-              <AdminProtectedRoute>
+              <AdminProtected>
                 <WithdrawRequest />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
           <Route
             path="/admin/realestate"
             element={
-              <AdminProtectedRoute>
+              <AdminProtected>
                 <AddEstate />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
           <Route
             path="/admin/settings/general"
             element={
-              <AdminProtectedRoute>
+              <AdminProtected>
                 <SystemConfig />
-              </AdminProtectedRoute>
+              </AdminProtected>
             }
           />
 

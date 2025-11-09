@@ -3,7 +3,8 @@ import AdminSidebar from '../adminLayout/AdminSidebar'
 import Smallfooter from '../../Users/UserLayout/smallfooter'
 import { supabase } from '../../../../supabase'
 import './admincss/AdminDashboard.css'
-
+ const token = localStorage.getItem('adminToken');
+import { fetchDashboardDataFromBackend } from '../../../api/adminApi'
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
@@ -24,116 +25,131 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      setError('');
+  // const fetchDashboardData = async () => {
+  //   try {
+  //     setError('');
       
-      // Fetch total users count
-      const { count: totalUsers, error: usersError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true });
+  //     // Fetch total users count
+  //     const { count: totalUsers, error: usersError } = await supabase
+  //       .from('users')
+  //       .select('*', { count: 'exact', head: true });
 
-      if (usersError) {
-        console.error('Error fetching users count:', usersError);
-      }
+  //     if (usersError) {
+  //       console.error('Error fetching users count:', usersError);
+  //     }
 
-      // Fetch active users count (users who are not blocked/banned)
-      const { count: activeUsers, error: activeUsersError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .or('is_blocked.is.null,is_blocked.eq.false');
+  //     // Fetch active users count (users who are not blocked/banned)
+  //     const { count: activeUsers, error: activeUsersError } = await supabase
+  //       .from('users')
+  //       .select('*', { count: 'exact', head: true })
+  //       .or('is_blocked.is.null,is_blocked.eq.false');
 
-      if (activeUsersError) {
-        console.warn('Error fetching active users count:', activeUsersError);
-      }
+  //     if (activeUsersError) {
+  //       console.warn('Error fetching active users count:', activeUsersError);
+  //     }
 
-      // Fetch blocked users count
-      const { count: blockedUsers, error: blockedUsersError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_blocked', true);
+  //     // Fetch blocked users count
+  //     const { count: blockedUsers, error: blockedUsersError } = await supabase
+  //       .from('users')
+  //       .select('*', { count: 'exact', head: true })
+  //       .eq('is_blocked', true);
 
-      if (blockedUsersError) {
-        console.warn('Error fetching blocked users count:', blockedUsersError);
-      }
+  //     if (blockedUsersError) {
+  //       console.warn('Error fetching blocked users count:', blockedUsersError);
+  //     }
 
-      // Calculate inactive users (total - active)
-      const inactiveUsers = (totalUsers || 0) - (activeUsers || 0);
+  //     // Calculate inactive users (total - active)
+  //     const inactiveUsers = (totalUsers || 0) - (activeUsers || 0);
 
-      // Fetch total registration deposits from Transactions table
-      const { data: transactionsData, error: transactionsError } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('status', 'success');
+  //     // Fetch total registration deposits from Transactions table
+  //     const { data: transactionsData, error: transactionsError } = await supabase
+  //       .from('transactions')
+  //       .select('amount')
+  //       .eq('status', 'success');
 
-      let totalRegistrationDeposits = 0;
-      if (transactionsError) {
-        console.warn('Error fetching registration deposits:', transactionsError);
-      } else if (transactionsData) {
-        totalRegistrationDeposits = transactionsData.reduce((sum, record) => {
-          return sum + (parseFloat(record.amount) || 0);
-        }, 0);
-      }
+  //     let totalRegistrationDeposits = 0;
+  //     if (transactionsError) {
+  //       console.warn('Error fetching registration deposits:', transactionsError);
+  //     } else if (transactionsData) {
+  //       totalRegistrationDeposits = transactionsData.reduce((sum, record) => {
+  //         return sum + (parseFloat(record.amount) || 0);
+  //       }, 0);
+  //     }
 
-      // Fetch total available balance from user_balances table
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('user_balances')
-        .select('available_balance');
+  //     // Fetch total available balance from user_balances table
+  //     const { data: balanceData, error: balanceError } = await supabase
+  //       .from('user_balances')
+  //       .select('available_balance');
 
-      let totalAvailableBalance = 0;
-      if (balanceError) {
-        console.warn('Error fetching balances:', balanceError);
-      } else if (balanceData) {
-        totalAvailableBalance = balanceData.reduce((sum, record) => {
-          return sum + (parseFloat(record.available_balance) || 0);
-        }, 0);
-      }
+  //     let totalAvailableBalance = 0;
+  //     if (balanceError) {
+  //       console.warn('Error fetching balances:', balanceError);
+  //     } else if (balanceData) {
+  //       totalAvailableBalance = balanceData.reduce((sum, record) => {
+  //         return sum + (parseFloat(record.available_balance) || 0);
+  //       }, 0);
+  //     }
 
-      // Fetch total withdrawal requests
-      const { data: withdrawalData, error: withdrawalError } = await supabase
-        .from('withdrawal_requests')
-        .select('amount');
+  //     // Fetch total withdrawal requests
+  //     const { data: withdrawalData, error: withdrawalError } = await supabase
+  //       .from('withdrawal_requests')
+  //       .select('amount');
 
-      let totalWithdrawalRequests = 0;
-      if (withdrawalError) {
-        console.warn('Error fetching withdrawal requests:', withdrawalError);
-      } else if (withdrawalData) {
-        totalWithdrawalRequests = withdrawalData.reduce((sum, record) => {
-          return sum + (parseFloat(record.amount) || 0);
-        }, 0);
-      }
+  //     let totalWithdrawalRequests = 0;
+  //     if (withdrawalError) {
+  //       console.warn('Error fetching withdrawal requests:', withdrawalError);
+  //     } else if (withdrawalData) {
+  //       totalWithdrawalRequests = withdrawalData.reduce((sum, record) => {
+  //         return sum + (parseFloat(record.amount) || 0);
+  //       }, 0);
+  //     }
 
-      // Fetch courses count
-      const { count: totalCourses, error: coursesError } = await supabase
-        .from('courses')
-        .select('*', { count: 'exact', head: true });
+  //     // Fetch courses count
+  //     const { count: totalCourses, error: coursesError } = await supabase
+  //       .from('courses')
+  //       .select('*', { count: 'exact', head: true });
 
-      if (coursesError) {
-        console.warn('Error fetching courses:', coursesError);
-      }
+  //     if (coursesError) {
+  //       console.warn('Error fetching courses:', coursesError);
+  //     }
 
-      setDashboardData({
-        totalUsers: totalUsers || 0,
-        activeUsers: activeUsers || 0,
-        inactiveUsers: inactiveUsers || 0,
-        blockedUsers: blockedUsers || 0,
-        totalCourses: totalCourses || 0,
-        totalBalance: totalAvailableBalance,
-        totalRegistrationDeposits: totalRegistrationDeposits,
-        totalTransactions: withdrawalData?.length || 0,
-        totalPayout: totalWithdrawalRequests,
-        loading: false
-      });
+  //     setDashboardData({
+  //       totalUsers: totalUsers || 0,
+  //       activeUsers: activeUsers || 0,
+  //       inactiveUsers: inactiveUsers || 0,
+  //       blockedUsers: blockedUsers || 0,
+  //       totalCourses: totalCourses || 0,
+  //       totalBalance: totalAvailableBalance,
+  //       totalRegistrationDeposits: totalRegistrationDeposits,
+  //       totalTransactions: withdrawalData?.length || 0,
+  //       totalPayout: totalWithdrawalRequests,
+  //       loading: false
+  //     });
 
-    } catch (error) {
-      console.error('Dashboard data fetch error:', error);
-      setError('Failed to load dashboard data. Please try again.');
-      setDashboardData(prev => ({ 
-        ...prev, 
-        loading: false 
-      }));
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Dashboard data fetch error:', error);
+  //     setError('Failed to load dashboard data. Please try again.');
+  //     setDashboardData(prev => ({ 
+  //       ...prev, 
+  //       loading: false 
+  //     }));
+  //   }
+  // };
+
+  const fetchDashboardData = async () => {
+  try {
+    setError('');
+    setDashboardData(prev => ({ ...prev, loading: true }));
+
+    const data = await fetchDashboardDataFromBackend(token);
+    setDashboardData({ ...data, loading: false });
+  } catch (error) {
+    console.error('Dashboard fetch error:', error);
+    setError('Failed to load dashboard data. Please try again.');
+    setDashboardData(prev => ({ ...prev, loading: false }));
+  }
+};
+
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -409,3 +425,48 @@ const AdminDashboard = () => {
 }
 
 export default AdminDashboard
+
+
+
+// import React, { useEffect, useState } from 'react';
+// // import { useAdmin } from '../context/AdminContext';
+// // import { useAdmin } from '../../context/AdminContext';
+// import { useAdmin } from '../../../context/AdminContext';
+
+// const AdminDashboard = () => {
+//   const { token, admin, logout } = useAdmin();
+//   const [profile, setProfile] = useState(admin || null);
+
+//   useEffect(() => {
+//     const fetchProfile = async () => {
+//       try {
+//         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/api'}/admin/profile`, {
+//           headers: { Authorization: `Bearer ${token}` }
+//         });
+//         if (!res.ok) throw new Error('Failed');
+//         const data = await res.json();
+//         setProfile(data);
+//       } catch (err) {
+//         console.error(err);
+//       }
+//     };
+//     if (!profile && token) fetchProfile();
+//   }, [token]);
+
+//   return (
+//     <div style={{ padding: 24 }}>
+//       <h2>Admin Dashboard</h2>
+//       {profile ? (
+//         <>
+//           <p>Welcome, {profile.email}</p>
+//           <p>Role: {profile.role}</p>
+//           <button onClick={logout}>Logout</button>
+//         </>
+//       ) : (
+//         <p>Loading profile...</p>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default AdminDashboard;
