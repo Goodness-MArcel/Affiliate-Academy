@@ -205,24 +205,6 @@ export const getDashboardData = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const getProfile = async (req, res) => {
   // req.admin is set by middleware
   try {
