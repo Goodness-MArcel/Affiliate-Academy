@@ -1,50 +1,38 @@
-import React, { useState } from 'react'
-import './AdminLogin.css'
-import { useNavigate } from 'react-router-dom';
-// import { useAdmin } from '../../context/AdminContext';
-import { useAuth } from '../../context/AuthProvider';
+import React, { useState } from 'react';
+import './AdminLogin.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAdmin } from '../../context/AdminContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const { login, loading } = useAdmin();
+
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
 
-  // Inside AdminLogin.jsx → handleSubmit
-  const { login } = useAuth();
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return;
+      return setError('Please fill in all fields');
     }
-
-    setLoading(true);
-    setError('');
-
-    const { login } = useAdmin();
 
     try {
       await login(formData.email, formData.password);
-      navigate('/AdminDashboard', { replace: true });
+
+      // Redirect to the originally requested page or default admin dashboard
+      const from = location.state?.from?.pathname || '/admin/dashboard';
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Invalid credentials or not an admin.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -74,8 +62,7 @@ const AdminLogin = () => {
             <form onSubmit={handleSubmit} className="admin-login-form">
               <div className="admin-form-group">
                 <label htmlFor="email" className="admin-form-label">
-                  <i className="fas fa-envelope"></i>
-                  Email Address
+                  <i className="fas fa-envelope"></i> Email Address
                 </label>
                 <input
                   type="email"
@@ -91,8 +78,7 @@ const AdminLogin = () => {
 
               <div className="admin-form-group">
                 <label htmlFor="password" className="admin-form-label">
-                  <i className="fas fa-lock"></i>
-                  Password
+                  <i className="fas fa-lock"></i> Password
                 </label>
                 <input
                   type="password"
@@ -124,13 +110,11 @@ const AdminLogin = () => {
               >
                 {loading ? (
                   <>
-                    <i className="fas fa-spinner fa-spin"></i>
-                    Signing In...
+                    <i className="fas fa-spinner fa-spin"></i> Signing In...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-sign-in-alt"></i>
-                    Sign In to Admin Panel
+                    <i className="fas fa-sign-in-alt"></i> Sign In to Admin Panel
                   </>
                 )}
               </button>
@@ -138,8 +122,7 @@ const AdminLogin = () => {
 
             <div className="admin-login-footer">
               <p className="admin-footer-text">
-                <i className="fas fa-shield-alt"></i>
-                Secure Admin Access Only
+                <i className="fas fa-shield-alt"></i> Secure Admin Access Only
               </p>
             </div>
           </div>
@@ -153,7 +136,7 @@ const AdminLogin = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminLogin
+export default AdminLogin;
