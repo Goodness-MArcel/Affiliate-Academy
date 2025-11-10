@@ -15,7 +15,7 @@ import NotFound from './components/pages/NotFound.jsx';
 import Terms from './components/pages/Terms.jsx';
 import ForgotPassword from './components/pages/ForgotPassword.jsx';
 import ResetPassword from './components/pages/Resetpassword.jsx';
-import CryptoPayment from './components/pages/CryptoPayment.jsx';
+import CryptoPayment from './components/pages/Cryptopayment.jsx';
 
 import Dashboard from './components/Users/Dashboard.jsx';
 import Profile from './components/Users/Profile.jsx';
