@@ -109,11 +109,11 @@ const CourseManagement = () => {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
-    if (!validTypes.includes(file.type)) {
-      showLiveAlert('Please upload a valid video file (MP4, WebM, OGG, or MOV)', 'danger');
-      return;
-    }
+    // const validTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
+    // if (!validTypes.includes(file.type)) {
+    //   showLiveAlert('Please upload a valid video file (MP4, WebM, OGG, or MOV)', 'danger');
+    //   return;
+    // }
 
     // Validate file size (max 100MB)
     const maxSize = 100 * 1024 * 1024; // 100MB
