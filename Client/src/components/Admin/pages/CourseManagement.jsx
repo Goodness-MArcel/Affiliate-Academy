@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import AdminSidebar from '../adminLayout/AdminSidebar';
 import Smallfooter from '../../Users/UserLayout/smallfooter';
 import { supabase } from '../../../../supabase';
+import { uploadcourse, fetchCourses as fetchCoursesAPI, updateCourse, deleteCourse } from '../../../api/adminApi';
 
 /**
- * IMPORTANT: Before using video upload, create a storage bucket in Supabase:
- * 1. Go to Supabase Dashboard > Storage
- * 2. Create a new bucket named "videos"
- * 3. Set it to Public bucket
- * 4. Configure allowed MIME types: video/mp4, video/webm, video/ogg, video/quicktime
+ * Video uploads are handled through Supabase Storage directly.
+ * Ensure you have a 'videos' bucket created in Supabase Storage.
  */
 
 const CourseManagement = () => {
@@ -20,7 +18,6 @@ const CourseManagement = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [videoFile, setVideoFile] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -83,12 +80,13 @@ const CourseManagement = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        showLiveAlert('Authentication required. Please login again.', 'danger');
+        return;
+      }
 
-      if (error) throw error;
+      const data = await fetchCoursesAPI(token);
       setCourses(data || []);
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -126,16 +124,15 @@ const CourseManagement = () => {
 
     try {
       setUploading(true);
-      setVideoFile(file);
 
       // Create unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `course-videos/${fileName}`;
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('videos') // Make sure this bucket exists in your Supabase storage
+      // Upload to Supabase Storage (kept for video storage only)
+      const { error } = await supabase.storage
+        .from('videos')
         .upload(filePath, file);
 
       if (error) throw error;
@@ -151,11 +148,10 @@ const CourseManagement = () => {
         course_video: publicUrl
       }));
 
-      alert('Video uploaded successfully!');
+      showLiveAlert('Video uploaded successfully!', 'success');
     } catch (error) {
       console.error('Error uploading video:', error);
       showLiveAlert('Failed to upload video: ' + error.message, 'danger');
-      setVideoFile(null);
     } finally {
       setUploading(false);
     }
@@ -166,6 +162,13 @@ const CourseManagement = () => {
 
     try {
       setLoading(true);
+
+      // Get admin token from localStorage
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        showLiveAlert('Authentication required. Please login again.', 'danger');
+        return;
+      }
 
       // Convert features from string to array if needed
       const featuresArray = formData.features
@@ -188,11 +191,8 @@ const CourseManagement = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
-        .from('courses')
-        .insert([courseData]);
-
-      if (error) throw error;
+      // Use axios API to upload course
+      await uploadcourse(courseData, token);
 
       showLiveAlert('Course added successfully!', 'success');
       setFormData({
@@ -205,7 +205,6 @@ const CourseManagement = () => {
         status: 'active',
         course_video: ''
       });
-      setVideoFile(null);
       setShowAddForm(false);
       fetchCourses();
     } catch (error) {
@@ -236,6 +235,12 @@ const CourseManagement = () => {
     try {
       setLoading(true);
 
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        showLiveAlert('Authentication required. Please login again.', 'danger');
+        return;
+      }
+
       const featuresArray = formData.features
         .split('\n')
         .map(f => f.trim())
@@ -254,12 +259,7 @@ const CourseManagement = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
-        .from('courses')
-        .update(courseData)
-        .eq('id', selectedCourse.id);
-
-      if (error) throw error;
+      await updateCourse(selectedCourse.id, courseData, token);
 
       showLiveAlert('Course updated successfully!', 'success');
       setShowEditModal(false);
@@ -268,6 +268,28 @@ const CourseManagement = () => {
     } catch (error) {
       console.error('Error updating course:', error);
       showLiveAlert('Failed to update course: ' + error.message, 'danger');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    if (!window.confirm('Are you sure you want to delete this course?')) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        showLiveAlert('Authentication required. Please login again.', 'danger');
+        return;
+      }
+
+      await deleteCourse(courseId, token);
+      showLiveAlert('Course deleted successfully!', 'success');
+      fetchCourses();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      showLiveAlert('Failed to delete course: ' + error.message, 'danger');
     } finally {
       setLoading(false);
     }
@@ -581,7 +603,11 @@ const CourseManagement = () => {
                               >
                                 <i className="bi bi-pencil"></i>
                               </button>
-                              <button className="btn btn-sm btn-outline-danger" title="Delete">
+                              <button 
+                                className="btn btn-sm btn-outline-danger" 
+                                title="Delete"
+                                onClick={() => handleDeleteCourse(course.id)}
+                              >
                                 <i className="bi bi-trash"></i>
                               </button>
                             </div>

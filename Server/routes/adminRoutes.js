@@ -9,6 +9,12 @@ import {
     deleteUser ,
     getDashboardData
 } from '../controller/adminAuth.js';
+import {
+    getAllCourses,
+    createCourse,
+    updateCourse,
+    deleteCourse
+} from '../controller/courseController.js';
 
 // Initialize admin router for all admin-specific routes
 const Adminrouter = express.Router();
@@ -66,6 +72,38 @@ Adminrouter.post('/promote', verifyAdminToken, promoteToAdmin);
  * Prevents self-demotion and maintains at least one admin
  */
 Adminrouter.delete('/demote/:id', verifyAdminToken, demoteAdmin);
+
+// =============================================
+// COURSE MANAGEMENT ROUTES
+// =============================================
+
+/**
+ * GET /api/admin/courses
+ * Retrieves all courses in the system
+ * Protected by admin token verification
+ */
+Adminrouter.get('/courses', verifyAdminToken, getAllCourses);
+
+/**
+ * POST /api/admin/course
+ * Creates a new course
+ * Expects course data in request body
+ */
+Adminrouter.post('/course', verifyAdminToken, createCourse);
+
+/**
+ * PUT /api/admin/course/:id
+ * Updates an existing course
+ * :id - The unique identifier of the course to update
+ */
+Adminrouter.put('/course/:id', verifyAdminToken, updateCourse);
+
+/**
+ * DELETE /api/admin/course/:id
+ * Deletes a course from the system
+ * :id - The unique identifier of the course to delete
+ */
+Adminrouter.delete('/course/:id', verifyAdminToken, deleteCourse);
 
 // Export the configured admin router for use in main application
 export default Adminrouter;

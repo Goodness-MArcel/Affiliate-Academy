@@ -79,3 +79,49 @@ export const fetchAdminsList = async (token) => {
     throw new Error(error.response?.data?.message || 'Failed to fetch admins list');
   }
 };
+
+// Courses Management APIs//
+
+export const fetchCourses = async (token) => {
+  try {
+    const res = await axiosInstance.get('/api/admin/courses', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to fetch courses');
+  }
+};
+
+export const uploadcourse = async (courseData, token) => {
+  try {
+    const res = await axiosInstance.post('/api/admin/course', courseData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to upload course');
+  }
+};
+
+export const updateCourse = async (courseId, courseData, token) => {
+  try {
+    const res = await axiosInstance.put(`/api/admin/course/${courseId}`, courseData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update course');
+  }
+};
+
+export const deleteCourse = async (courseId, token) => {
+  try {
+    const res = await axiosInstance.delete(`/api/admin/course/${courseId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to delete course');
+  }
+};
