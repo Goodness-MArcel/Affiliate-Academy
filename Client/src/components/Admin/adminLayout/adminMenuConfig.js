@@ -44,15 +44,6 @@ export const ADMIN_MENU_ITEMS = [
         { title: 'General Settings', path: '/admin/settings/general' },
       ]
     },
-    {
-      title: 'Notifications',
-      icon: 'fas fa-bell',
-      path: '/admin/notifications',
-      description: 'System Alerts',
-      submenu: [
-        { title: 'Send Notifications', path: '/admin/notifications/send' },
-      ]
-    }
 ];
 
 // Profile Menu Items

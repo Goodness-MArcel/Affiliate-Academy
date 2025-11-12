@@ -57,11 +57,11 @@ const Sidebar = () => {
         </div>
 
         <div className="navbar-right">
-          {/* Notifications */}
+          {/* Notifications
           <button className="nav-icon-btn">
             <i className="bi bi-bell"></i>
             <span className="notification-badge">3</span>
-          </button>
+          </button> */}
 
           {/* Profile Picture */}
           <div className="profile-picture" title={userData.name}>
