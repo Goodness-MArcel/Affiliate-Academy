@@ -17,7 +17,7 @@ import Adminrouter from './routes/adminRoutes.js';
 
 // Simple CORS setup
 app.use(cors({
-  origin: 'http://localhost:5173', // Your specific frontend URL
+  origin: ['http://localhost:5173', 'https://affiliate-academy-e8o9.vercel.app'], // Your specific frontend URLs
   credentials: true
 }));
 
@@ -46,5 +46,5 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`CORS enabled for: http://localhost:5173`);
+  console.log(`CORS enabled for: http://localhost:5173 and https://affiliate-academy-e8o9.vercel.app`);
 });
