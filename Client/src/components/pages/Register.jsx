@@ -84,18 +84,10 @@ const Register = () => {
     setErrorMsg('');
 
     try {
-      const verifyRes = await fetch(
-        `${backendURL}/api/payment/verify/${referenceObj.reference}`,
-        { method: 'GET' }
-      );
-      const verifyData = await verifyRes.json();
+      console.log(' Payment successful, processing registration...', referenceObj);
 
-      if (!verifyData.success) {
-        throw new Error(verifyData.message || 'Payment verification failed');
-      }
-
-      // Register with role
-      await register({
+      // Register user first to get user_id
+      const registrationData = await register({
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
@@ -106,12 +98,51 @@ const Register = () => {
         paymentRef: referenceObj.reference,
         paid: true,
         referralCode: referralCode || null,
-        role: 'user', // Explicit role
+        role: 'user',
       });
 
+      const newUserId = registrationData?.user?.id;
+
+      if (!newUserId) {
+        throw new Error('Registration failed - no user ID returned');
+      }
+
+      console.log('🔵 User registered. User ID:', newUserId, 'Referrer ID:', referralCode);
+
+      // Verify payment with user_id and referrer_id
+      console.log('🔄 Verifying payment with backend...');
+      const verifyRes = await fetch(
+        `${backendURL}/api/payment/verify/${referenceObj.reference}`,
+        { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: newUserId,
+            referrer_id: referralCode || null,
+          })
+        }
+      );
+
+      if (!verifyRes.ok) {
+        const errorText = await verifyRes.text();
+        console.error('❌ Backend verification failed:', verifyRes.status, errorText);
+        throw new Error(`Payment verification failed (${verifyRes.status})`);
+      }
+
+      const verifyData = await verifyRes.json();
+      console.log('✅ Backend verification response:', verifyData);
+
+      if (!verifyData.success) {
+        throw new Error(verifyData.message || 'Payment verification failed');
+      }
+
+      console.log('✅ Registration complete! Redirecting to login...');
+      setShowPaymentScreen(false);
       navigate('/login', { replace: true });
     } catch (err) {
+      console.error('❌ Registration error:', err);
       setErrorMsg(err.message || 'Registration failed. Please try again.');
+      setShowPaymentScreen(false); // Close payment modal on error
     } finally {
       setLoading(false);
     }
