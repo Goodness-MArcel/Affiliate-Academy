@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabase';
 // import { useUser } from '../../context/userContext';
 import { useAuth } from '../../context/AuthProvider';
@@ -12,6 +12,7 @@ const ProgramAccess = ({ embedded = false }) => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [error, setError] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   // Save selected courses to database
@@ -135,7 +136,13 @@ const ProgramAccess = ({ embedded = false }) => {
 
   const handleAccessProduct = (course) => {
     console.log("Accessing course:", course.courseName);
-    alert(`Starting ${course.courseName} course`);
+    // Navigate to watch course page with course data
+    navigate('/user/watch-course', { 
+      state: { 
+        course: course,
+        videoUrl: course.videoUrl || course.course_video 
+      } 
+    });
   }
 
   useEffect(() => {

@@ -20,6 +20,7 @@ import CryptoPayment from './components/pages/Cryptopayment.jsx';
 import Dashboard from './components/Users/Dashboard.jsx';
 import Profile from './components/Users/Profile.jsx';
 import ProgramAccess from './components/Users/ProgramAccess.jsx';
+import WatchCourse from './components/Users/watchcourse.jsx';
 import Estate from './components/Users/Estates.jsx';
 import Product from './components/Users/Products.jsx';
 import Payment from './components/Users/Payment.jsx';
@@ -59,7 +60,8 @@ const Layout = () => {
     location.pathname === '/404' ||
     location.pathname === '/AdminLogin' ||
     location.pathname.startsWith('/dashboard') ||
-    location.pathname.startsWith('/admin/');
+    location.pathname.startsWith('/admin/') ||
+    location.pathname.startsWith('/user/');
 
 
   return (
@@ -86,6 +88,7 @@ const Layout = () => {
           {/* ==================== Protected User Routes ==================== */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/program-access" element={<ProtectedRoute><ProgramAccess /></ProtectedRoute>} />
+          <Route path="/user/watch-course" element={<ProtectedRoute><WatchCourse /></ProtectedRoute>} />
           <Route path="/dashboard/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/dashboard/estate" element={<ProtectedRoute><Estate /></ProtectedRoute>} />
           <Route path="/dashboard/products" element={<ProtectedRoute><Product /></ProtectedRoute>} />

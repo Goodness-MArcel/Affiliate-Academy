@@ -41,6 +41,7 @@ const Sidebar = () => {
     { title: 'Real Estate', icon: 'bi-house', path: '/dashboard/Estate' },
     { title: 'Payment', icon: 'bi-credit-card', path: '/dashboard/payment' },
     { title: 'Invite', icon: 'bi-person-plus', path: '/dashboard/invite' },
+    
   ];
 
   return (
